@@ -26,6 +26,22 @@ gelesen mit `werkzeuge/fbx_lesen.py`). 19 s, 476 Bilder.
    Totzone/Stabilisierung im Mars: kleine Bewegungen werden verschluckt und beim Losfahren gibt es
    einen kleinen Ruck. Für Postproduktion unerwünscht → prüfen, ob sie sich abschalten lässt.
 
+## Was Marlon dabei gemacht hat
+
+- **Rover 1 stand still.** Marlon ist nur vorne durchgelaufen. Trotzdem wandert Rover 1 in der Aufnahme
+  um bis zu 37 cm (X) und 32 cm (Höhe), mit Sprüngen bis 13 cm pro Bild.
+- **Rover 3 wurde vom Boden hochgehoben** → dabei der Ausreisser bis ~8 m.
+
+Zwei Vermutungen, nicht bewiesen:
+- **A — Abdeckung:** Marlon verdeckt beim Durchlaufen Basisstationen; Mars rechnet die Raumkarte neu
+  (wandernde BS1–3), das ganze Koordinatensystem rutscht, Rover 1 „bewegt" sich mit.
+- **B — Rover 3 als Anker:** Mars meldet Rover 3 als Recenter-Ziel (`/api/GetRecenterTarget`), und im FreeD
+  liegt Rover 3 bei ~0/0/48 mm, also im Nullpunkt. Hängt der Nullpunkt live an Rover 3, verschiebt Anheben
+  von Rover 3 die ganze Welt — auch die stillstehende Kamera.
+
+Test zum Trennen: (1) Rover 3 liegen lassen, nur vor der Kamera durchlaufen. (2) Niemand läuft, nur Rover 3
+anheben. Rover 1 steht beide Male still.
+
 ## Folgen für den TrackingRecorder
 
 - Ausreisser-Erkennung über Geschwindigkeit/Beschleunigung (Grenzwerte für ein Kamera-Rig), markieren,
