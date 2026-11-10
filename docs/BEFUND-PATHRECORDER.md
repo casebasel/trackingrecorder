@@ -83,3 +83,19 @@ Was hat das ausgelöst? Verdacht: Die erste Aufnahme lag kurz nach dem Einstelle
 
 Für die App heisst das: **Kartenwechsel erkennen ist Pflicht.** Ein solcher Take muss rot markiert werden,
 sonst merkt man es erst beim Rendern. Path Recorder kennt die BS-Posen — woher, gilt es herauszufinden.
+
+## Test 3 (14:56:42 – 14:57:04): Massstab, Rover 3 auf dem Boden 2,00 m versetzt
+
+`RawData_2026-11-10_14-56-43_test3-massstab.fbx`:
+
+- **Massstab stimmt:** 2,00 m am Massband → Mars 199,9 / 200,0 cm, Höhe dabei +0,2 cm. Wiederholgenauigkeit
+  zweier Ruhephasen am selben Ort: 0,2 cm.
+- Zwischenhalt erhöht (Tisch/Kiste?): Mars +73,9 cm über Boden — echte Höhe noch offen.
+- **Ausreisser Rover 3 beim Tragen:** um 14:56:55 kurz −65 cm, also unter dem Boden.
+- **Kamera (Rover 1) dreht sich um 0,3°**, ohne angefasst zu werden (14:56:51:21–23, Rover 3 lag da erhöht).
+  0,3° entsprechen beim 35 mm auf 4K grob 30 px Versatz im Bild.
+- **Basisstationen springen wieder**, obwohl alles ruht: BS3 um 4,7 cm (14:57:01:11) und 6,4 cm (14:57:03:06),
+  BS1 um 4,1 cm (14:57:04:01). Rover 1 reagiert darauf diesmal nicht.
+
+→ Massstab ist kein Problem. Die Störungen sind **kurze Fehllagen beim Bewegen** (Rover 3 unter dem Boden)
+und **kleine Drehsprünge der stehenden Kamera**. Beides muss die App erkennen und melden.
