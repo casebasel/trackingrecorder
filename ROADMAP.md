@@ -5,9 +5,15 @@ und nach Unreal Engine bringt. Ersatz für HTC „Path Recorder" (`C:\Program Fi
 
 ## Bekannt (Setup Studio)
 
-- Mars-Box: `192.168.100.60`
-- FreeD: UDP-Port `6001`, Rover 1, 2, 3 — wird aktuell an `192.168.100.4` gesendet
-- LiveLink: Port `6666` (Protokoll noch unbekannt)
+- Mars-Box: `192.168.100.60`, Web-API „Remote Control" auf `http://192.168.100.60:7008`
+  (`/api/GetTimeCode`, `/api/GetGenlockState`, `/api/GetRecenterTarget` …, siehe vp-companion-app `docs/NETZWERK.md`)
+- FreeD: UDP `6001`, Rover 1, 2, 3 — Ziel aktuell `192.168.100.4` (nDisplay-Node „Ada")
+- Live Link: Unreal Message Bus, **Multicast `230.0.0.1:6666`** — trägt Pose, FIZ und Timecode
+- Timecode-Kette: Tentacle Sync → Mars TC-In → Live Link → Unreal. Stand 10.11.2026 meldet
+  `/api/GetTimeCode` `Enable:false` — am Mars kommt gerade kein Timecode an.
+- Bildrate Stage: **25p** (seit 13.10.2026)
+- Rover 1 = Kamera (mit Objektiv-Encoder), Rover 3 = Kalibrations-Tracker (Befund 29.09.2026, unbestätigt)
+- Multicast erreicht den Server-Claude (VM 170, anderes Subnetz) nicht — Live-Link-Tests nur im Studio-LAN
 
 ## Phase 1 — Empfang & Aufnahme (läuft)
 
@@ -21,7 +27,8 @@ und nach Unreal Engine bringt. Ersatz für HTC „Path Recorder" (`C:\Program Fi
 ## Phase 2 — Timecode
 
 - [x] Notlösung: Uhr des Aufnahme-PCs (in jeder Zeile als `tc_source` vermerkt)
-- [ ] Timecode von Mars übernehmen, falls im Datenstrom
+- [ ] Timecode aus Live Link (Message Bus, Multicast) übernehmen — Hauptweg, gleiche Quelle wie Unreal
+- [ ] Timecode-Status vom Mars per `/api/GetTimeCode` überwachen
 - [ ] LTC-Decoder über Audio-Eingang des Aufnahme-PCs
 - [ ] Drop-Frame (29.97/59.94), Anzeige TC-Status / Aussetzer
 
@@ -41,6 +48,11 @@ und nach Unreal Engine bringt. Ersatz für HTC „Path Recorder" (`C:\Program Fi
 - [ ] Klären, ob Mars ungeglättete Rohdaten liefern kann (Glättung in Mars aus, eigene Filter)
 - [ ] Eigene Glättung (One-Euro / Kalman), live und nachträglich
 - [ ] Latenzausgleich, Lücken füllen, Tracker→Sensor-Versatz
+
+## Phase 6 — Anbindung VP Companion App (zweiter Schritt)
+
+- [ ] Takes und Aufnahmen mit Stage-Server und Klappe synchronisieren (Take-ID, REC/Stop, Timecode)
+- [ ] Tracker→Sensor-Versatz des Kamera-Rigs aus dem Unreal-Rig der VP Companion App übernehmen
 
 ## Entwicklung
 
