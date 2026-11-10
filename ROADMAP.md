@@ -35,6 +35,8 @@ Was daraus folgt:
 - [x] Konsolen-Tool: Live-Anzeige pro Rover mit Rate in Hz
 - [x] Echte Mars-Pakete mitgeschnitten (10.11.2026, `~/daten/trackingrecorder/2026-11-10_mitschnitt/`):
   FreeD 25 Hz pro Rover, Prüfsumme ok, **Spare = 0000 → kein Timecode in FreeD**, Zoom/Fokus = 0 (FIZ fehlt in FreeD)
+- [x] FreeD-Takt auf PC .3 (25 min Mitschnitt): exakt 25,00 Hz pro Rover, Abstand 40 ± 2 ms,
+  nur ~6 fehlende Bilder (Lücken max. 136 ms) → Empfang ist zuverlässig; Lücken trotzdem erkennen und melden
 - [ ] Achsen FreeD ↔ Unreal abgleichen (Rover 3 liegt bei ~0/0/48 mm = Nullpunkt?)
 - [x] Live Link passiv: auf dem Multicast kommen nur 50-Byte-Hello/Ping des UE Message Bus (Protokoll 17/18),
   **keine Posen** — die gehen nur an angemeldete Empfänger (Node .4)
