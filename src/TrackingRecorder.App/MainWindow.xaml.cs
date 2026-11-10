@@ -78,6 +78,8 @@ public partial class MainWindow : Window
         _poll.Tick += async (_, _) => await PollRemote();
         _poll.Start();
         Version.Text = "v" + _updater.Version;
+        KopfVersion.Text = "v" + _updater.Version;
+        Title = $"TrackingRecorder {_updater.Version}";
         _updateTimer.Tick += async (_, _) => await UpdatePruefen();
         _updateTimer.Start();
         Loaded += async (_, _) => await UpdatePruefen();
@@ -231,6 +233,8 @@ public partial class MainWindow : Window
     {
         await _updater.PruefenAsync();
         UpdateText.Text = _updater.Zustand;
+        KopfVersion.Text = $"v{_updater.Version} · {(_updater.BereitVersion is null ? _updater.Zustand : $"Update {_updater.BereitVersion} bereit")}";
+        KopfVersion.Foreground = _updater.BereitVersion is null ? Theme.Get("KopfText2") : Theme.Get("WarnAufKopf");
         UpdateText.Foreground = _updater.BereitVersion is null ? Theme.Get("Text2") : Theme.Get("Blau");
         UpdateButton.Visibility = _updater.BereitVersion is null ? Visibility.Collapsed : Visibility.Visible;
         UpdateButton.IsEnabled = _recorder is null;
@@ -534,12 +538,18 @@ public sealed class Settings
     /// <summary>Für Prüfbilder: nichts auf die Platte schreiben.</summary>
     [System.Text.Json.Serialization.JsonIgnore] public bool ReadOnly { get; set; }
 
-    static string FilePath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TrackingRecorder", "settings.json");
+    // Roaming statt Local: %LOCALAPPDATA%\TrackingRecorder ist der Programmordner von Velopack (wird bei Deinstallation gelöscht).
+    static string FilePath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TrackingRecorder", "settings.json");
+    static string AlterPfad => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TrackingRecorder", "settings.json");
 
     public static Settings Load()
     {
-        try { return JsonSerializer.Deserialize<Settings>(File.ReadAllText(FilePath)) ?? new Settings(); }
-        catch { return new Settings(); }
+        foreach (var p in new[] { FilePath, AlterPfad })
+        {
+            try { if (File.Exists(p)) return JsonSerializer.Deserialize<Settings>(File.ReadAllText(p)) ?? new Settings(); }
+            catch { }
+        }
+        return new Settings();
     }
 
     public void Save()

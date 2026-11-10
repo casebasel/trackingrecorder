@@ -16,7 +16,10 @@
         <!-- Kopfzeile: Titel links, zwei Zahlen rechts -->
         <Border Background="{DynamicResource Kopf}" Padding="20,0">
             <DockPanel VerticalAlignment="Center" LastChildFill="False">
-                <TextBlock DockPanel.Dock="Left" Text="TrackingRecorder" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource KopfText}"/>
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                    <TextBlock Text="TrackingRecorder" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource KopfText}" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="KopfVersion" FontSize="14" Foreground="{DynamicResource KopfText2}" VerticalAlignment="Center" Margin="10,1,0,0"/>
+                </StackPanel>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
                     <TextBlock x:Name="KopfRate" Text="–" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource KopfText}"/>
                     <TextBlock Text=" Bilder/s · " FontSize="14" Foreground="{DynamicResource KopfText2}"/>
