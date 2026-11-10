@@ -111,3 +111,14 @@ und **kleine Drehsprünge der stehenden Kamera**. Beides muss die App erkennen u
 
 ⚠ Das Ground Setup verschiebt die Welt. Alles, was in Mars-Weltkoordinaten eingemessen wurde (Leinwandlage,
 nDisplay-Root der Stage), stimmt danach nicht mehr. Der Versatz Tracker→Pupille liegt im Tracker-Raum und bleibt gültig.
+
+## Test 5 (15:17:15 – 15:17:40): Stationary tolerance + Motion Filter aus
+
+`RawData_2026-11-10_15-17-15_test5-pktmon.fbx`, Kamera (Rover 1) unberührt:
+
+- **Eingefroren: 0 von 627 Bildern** (vorher ~80 %) → die Rohdaten kommen jetzt ungefiltert.
+- Rauschen der stehenden Kamera (Standardabweichung): Position 0,06–0,11 mm, Drehung **0,007–0,010°**
+  (Spanne bis 0,06°). Grob gerechnet (Amira 4K, 35 mm, ~100 px pro Grad): Drehrauschen ≈ 1 px,
+  Spitzen bis ~6 px. Die Drehung ist damit der grösste Fehleranteil; Glätten in der Nachbearbeitung muss
+  vor allem dort ansetzen.
+- Basisstationen ruhig.
