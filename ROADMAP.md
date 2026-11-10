@@ -67,6 +67,7 @@ Was daraus folgt:
   pro Benutzer unter %LOCALAPPDATA%\TrackingRecorder, Startmenü + Desktop. Sucht beim Start und alle 30 min, lädt im
   Hintergrund, spielt beim Schliessen ein; „Neu starten" in der Statusleiste (gesperrt während der Aufnahme).
   Veröffentlichen: Version im App-csproj erhöhen, dann `werkzeuge/release.sh`. Repo seit 10.11.2026 öffentlich.
+  Update-Weg 0.5.0 → 0.5.1 auf PC .3 erfolgreich getestet (10.11.2026).
 - [ ] Weiterleiten des FreeD-Stroms an Unreal (App sitzt dazwischen, Unreal bekommt weiter Live-Daten)
 
 ## Phase 4 — Export nach Unreal
