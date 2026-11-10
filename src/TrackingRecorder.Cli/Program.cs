@@ -4,6 +4,9 @@ using TrackingRecorder.Core;
 
 // Erste Testversion: FreeD empfangen, live anzeigen, optional als CSV aufnehmen.
 //   trackingrecorder [--port 6001] [--fps 25] [--out aufnahme.csv]
+//   trackingrecorder mitschnitt [--relay 10.10.10.70:7001] [--out datei.txt]   Rohmitschnitt FreeD + Live Link
+if (args.Length > 0 && args[0] == "mitschnitt") return TrackingRecorder.Cli.Mitschnitt.Run(args);
+
 int port = 6001;
 double fps = 25;
 string? outPath = null;
@@ -50,3 +53,4 @@ while (!stop.Wait(1000))
     if (rx.Invalid > 0) Console.WriteLine($"  ungültige Pakete bisher: {rx.Invalid}");
 }
 Console.WriteLine($"Ende. {rx.Received} Pakete empfangen.");
+return 0;
