@@ -12,6 +12,7 @@ Was daraus folgt:
   sauber füllen). Die Rohaufnahme bleibt trotzdem immer unverändert erhalten.
 - Bildgenaue Zuordnung zum Kamera-Clip über Timecode, Versatz Tracker↔Bild messbar machen.
 - Objektiv: Brennweite, Fokus, Verzeichnung — sonst rutscht der Hintergrund trotz gutem Tracking.
+- Rig Greenscreen: ARRI Amira + 35 mm Festbrennweite, **kein Zoom** → ein Verzeichnungsprofil, nur Fokus variiert.
 - Prüfen gegen das Bild: Tracking-Marker auf dem Greenscreen, Restfehler in Pixeln messen.
 
 ## Bekannt (Setup Studio)
