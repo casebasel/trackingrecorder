@@ -64,6 +64,10 @@ Was daraus folgt:
 - [ ] Klären, ob Mars ungeglättete Rohdaten liefern kann (Glättung in Mars aus, eigene Filter)
 - [ ] Aufnahme bleibt immer roh. Glättung nur optional beim Export (One-Euro / Kalman), abschaltbar
 - [ ] Latenzausgleich, Lücken füllen, Tracker→Sensor-Versatz
+- [ ] **Kartensprünge herausrechnen:** Die Basisstationen hängen fest an Stahlträgern (Marlon 10.11.2026).
+  Jede „Bewegung" einer BS in den Daten ist ein Schätzfehler von Mars und verschiebt die ganze Welt.
+  Aus alter und neuer Lage der 4 BS die starre Verschiebung schätzen und auf die Rover-Posen umgekehrt anwenden.
+- [ ] Prüfen, ob sich in Mars die Raumkarte (Basisstationen) festsetzen lässt, statt laufend neu zu schätzen
 
 ## Phase 5b — Verfeinern am Bild (Hybrid Mars + Bild)
 
