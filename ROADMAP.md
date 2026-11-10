@@ -65,6 +65,16 @@ Was daraus folgt:
 - [ ] Aufnahme bleibt immer roh. Glättung nur optional beim Export (One-Euro / Kalman), abschaltbar
 - [ ] Latenzausgleich, Lücken füllen, Tracker→Sensor-Versatz
 
+## Phase 5b — Verfeinern am Bild (Hybrid Mars + Bild)
+
+Idee Marlon 10.11.2026: Marker auf der Leinwand / nDisplay, Track in Nuke, Systeme verbinden.
+- Mars-Bahn = Grundform, Bild = genaue Lage. Nicht frei neu lösen, sondern wenige Korrekturen schätzen:
+  Zeitversatz, Versatz Tracker→Pupille, langsame Drift pro Take.
+- Marker mit bekannter 3D-Lage: über nDisplay auf die Leinwand projiziert (ChArUco-Muster gibt es schon:
+  vp-companion-app `werkzeuge/leinwand-muster.py`, Auswertung `werkzeuge/leinwand-messen/`) plus Klebemarker am Greenscreen.
+- Nuke: Kamera-Export (FBX/.chan) zum Prüfen und als Startwert für CameraTracker; 2D-Tracks aus Nuke zurück zum Einpassen.
+- Mass für „sauber“: Restfehler der Marker in Pixeln pro Bild.
+
 ## Phase 6 — Anbindung VP Companion App (zweiter Schritt)
 
 - [ ] Takes und Aufnahmen mit Stage-Server und Klappe synchronisieren (Take-ID, REC/Stop, Timecode)
