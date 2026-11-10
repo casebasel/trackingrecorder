@@ -20,7 +20,9 @@ public sealed record MarsFrame(double DeviceTimeMs, Timecode Tc, float Fps, IRea
 
 /// <summary>
 /// Protokoll von Mars-Port 5500, entschlüsselt aus einem Mitschnitt von Path Recorder (10.11.2026):
-/// Anfrage 1 Byte: 0x07 = Strom starten, 0x06 = beenden. Antwort pro Bild:
+/// Anfrage 1 Byte: **0x06 = anmelden, 0x07 = abmelden** (aus dem Code von Path Recorder, UDPListener:
+/// beim Verbinden 07 + 06, beim Beenden 07; am 10.11.2026 am Gerät bestätigt). Mars sendet jedem angemeldeten
+/// Absender (IP + Port) weiter, bis er sich mit 0x07 abmeldet — auch wenn das Programm längst beendet ist. Antwort pro Bild:
 ///   0–12   fester Kopf 00 01 00 00 00 00 00 04 00 02 00 05 00
 ///   13–20  double  Geräte-Zeit in ms (40 ms Schritt bei 25p, Uhr der Box, nicht Tageszeit)
 ///   21     Bildnummer (= Timecode-Frame)
@@ -34,7 +36,7 @@ public sealed record MarsFrame(double DeviceTimeMs, Timecode Tc, float Fps, IRea
 public static class MarsProtocol
 {
     public const int Port = 5500;
-    public const byte Start = 0x07, Stop = 0x06;
+    public const byte Subscribe = 0x06, Unsubscribe = 0x07;
     const int HeaderLength = 31, RecordLength = 91;
 
     public static bool TryParse(ReadOnlySpan<byte> d, out MarsFrame? frame)
@@ -65,7 +67,9 @@ public static class MarsProtocol
 public readonly record struct MarsSample(long TicksUtc, double MonotonicMs, MarsFrame Frame, byte[] Raw);
 
 /// <summary>
-/// Holt den Mars-Datenstrom ab. Startet mit 0x07 und fragt erneut an, wenn eine Sekunde lang nichts kommt.
+/// Holt den Mars-Datenstrom ab wie Path Recorder: 0x07 (alte Anmeldung lösen) + 0x06 (anmelden), erneut, wenn
+/// 3 s lang nichts kommt. Beim Beenden 0x07, damit Mars nicht ins Leere weitersendet. Fester lokaler Port:
+/// Wird die App hart beendet, trifft der nächste Start dieselbe Anmeldung statt eine weitere anzulegen.
 /// Empfang in eigenem Thread mit hoher Priorität, ohne UI und ohne Logging im Empfangspfad.
 /// </summary>
 public sealed class MarsClient : IDisposable
@@ -79,11 +83,18 @@ public sealed class MarsClient : IDisposable
 
     public event Action<MarsSample>? FrameReceived;
     public long Received, Invalid, Requests;
+    public int LocalPort => ((IPEndPoint)_udp.Client.LocalEndPoint!).Port;
 
-    public MarsClient(IPAddress mars)
+    public const int DefaultLocalPort = 55500;
+
+    public MarsClient(IPAddress mars, int localPort = DefaultLocalPort)
     {
         _mars = new IPEndPoint(mars, MarsProtocol.Port);
-        _udp = new UdpClient(new IPEndPoint(IPAddress.Any, 0));
+        _udp = new UdpClient(AddressFamily.InterNetwork);
+        _udp.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+        _udp.Client.Bind(new IPEndPoint(IPAddress.Any, localPort));
+        // Windows: ICMP „Port unreachable" sonst als Fehler beim nächsten Receive (WSAECONNRESET)
+        if (OperatingSystem.IsWindows()) _udp.Client.IOControl(-1744830452 /* SIO_UDP_CONNRESET */, [0], null);
         _udp.Client.ReceiveBufferSize = 4 << 20;
         _udp.Client.ReceiveTimeout = 500;
         _thread = new Thread(Loop) { IsBackground = true, Priority = ThreadPriority.Highest, Name = "Mars-Empfang" };
@@ -102,7 +113,7 @@ public sealed class MarsClient : IDisposable
         while (_running)
         {
             double now = _clock.Elapsed.TotalMilliseconds;
-            if (now - _lastPacketMs > 1000 && now - lastRequest > 1000) { Request(MarsProtocol.Start); lastRequest = now; }
+            if (now - _lastPacketMs > 3000 && now - lastRequest > 3000) { Request(MarsProtocol.Unsubscribe); Request(MarsProtocol.Subscribe); lastRequest = now; }
 
             byte[] data;
             try { data = _udp.Receive(ref remote); }
@@ -125,7 +136,7 @@ public sealed class MarsClient : IDisposable
     public void Dispose()
     {
         _running = false;
-        Request(MarsProtocol.Stop);
+        Request(MarsProtocol.Unsubscribe);
         _udp.Dispose();
     }
 }

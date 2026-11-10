@@ -7,7 +7,7 @@ namespace TrackingRecorder.Cli;
 
 /// <summary>
 /// Aufnahme über den Mars-Datenstrom (UDP 5500, wie Path Recorder): Timecode, alle Tracker und Basisstationen.
-///   TrackingRecorder mars [--ip 192.168.100.60] [--out take.csv] [--relay 10.10.10.70:7002]
+///   TrackingRecorder mars [--ip 192.168.100.60] [--port 55500] [--dauer s] [--out take.csv] [--relay 10.10.10.70:7002]
 /// </summary>
 static class MarsModus
 {
@@ -16,6 +16,8 @@ static class MarsModus
         var ip = IPAddress.Parse("192.168.100.60");
         string outPath = $"mars_{DateTime.Now:yyyy-MM-dd_HHmmss}.csv";
         IPEndPoint? relay = null;
+        int localPort = MarsClient.DefaultLocalPort;
+        double dauerS = 0;
         for (int i = 1; i < args.Length - 1; i++)
         {
             switch (args[i])
@@ -23,6 +25,8 @@ static class MarsModus
                 case "--ip": ip = IPAddress.Parse(args[++i]); break;
                 case "--out": outPath = args[++i]; break;
                 case "--relay": relay = IPEndPoint.Parse(args[++i]); break;
+                case "--port": localPort = int.Parse(args[++i]); break;
+                case "--dauer": dauerS = double.Parse(args[++i], CultureInfo.InvariantCulture); break;
             }
         }
 
@@ -30,7 +34,7 @@ static class MarsModus
         var monitor = new MarsMonitor();
         using var relaySock = relay is null ? null : new UdpClient();
         MarsFrame? latest = null;
-        using var client = new MarsClient(ip);
+        using var client = new MarsClient(ip, localPort);
         client.FrameReceived += s =>
         {
             recorder.Write(s);
@@ -41,7 +45,8 @@ static class MarsModus
 
         var stop = new ManualResetEventSlim();
         Console.CancelKeyPress += (_, e) => { e.Cancel = true; stop.Set(); };
-        Console.WriteLine($"Mars {ip}:{MarsProtocol.Port} · Aufnahme → {Path.GetFullPath(outPath)}" +
+        if (dauerS > 0) _ = Task.Delay(TimeSpan.FromSeconds(dauerS)).ContinueWith(_ => stop.Set());
+        Console.WriteLine($"Mars {ip}:{MarsProtocol.Port} · eigener Port {client.LocalPort} · Aufnahme → {Path.GetFullPath(outPath)}" +
                           (relay is null ? "" : $" · Weiterleitung an {relay}") + " · Ctrl+C beendet");
 
         long prevFrames = 0;

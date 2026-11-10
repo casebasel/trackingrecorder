@@ -43,6 +43,8 @@ Was daraus folgt:
 - [x] **Mars-Datenstrom UDP 5500 entschlüsselt** (Weg von Path Recorder, Mitschnitt 10.11.2026): Anfrage `07`/`06`,
   pro Bild Timecode, Geräte-Zeit, alle Tracker **und Basisstationen** (Position m, Quaternion). Aufbau in
   `src/TrackingRecorder.Core/MarsStream.cs`. Mars antwortet nur ins Studio-LAN (nicht an VM 170).
+  **06 = anmelden, 07 = abmelden** (aus dem Code von Path Recorder `UDPListener`). Mars sendet an jede
+  Anmeldung weiter, bis 07 kommt. Am Gerät bestätigt: 25,00 Bilder/s, 0 fehlend, sauberes Abmelden.
 - [x] Modus `mars` in der exe: Aufnahme CSV + Rohdatei, Live-Prüfung fehlende Bilder / Sprünge / Kartensprünge
 - [ ] Zuordnung Seriennummer ↔ Rover-Port (LHR-0FFCBEE6 = Rover 1 Kamera, LHR-16D49F61 = Rover 3)
 - [ ] Message-Bus-Anmeldung nachbauen (nur noch nötig für FIZ, falls nicht über FreeD) (Hello → Live-Link-Connect), dann Posen + FIZ + Timecode empfangen
@@ -90,6 +92,12 @@ Idee Marlon 10.11.2026: Marker auf der Leinwand / nDisplay, Track in Nuke, Syste
 
 - [ ] Takes und Aufnahmen mit Stage-Server und Klappe synchronisieren (Take-ID, REC/Stop, Timecode)
 - [ ] Versatz Tracker→Perspektivpunkt pro Take mitschreiben, aktiv vom Stage-Server (`kamerakal`) holen — siehe `docs/KAMERA-RIG.md`
+
+## Zugang PC .3 (Aufnahme-PC „i9")
+
+`ssh Ndisplay@192.168.100.3` vom Server-Claude (Schlüssel, PowerShell als Shell, Administrator).
+Ablage nur unter `C:\claude\` (App: `C:\claude\tasks\2026-11-10_trackingrecorder\`). Firewall-Regel
+„TrackingRecorder" für die exe ist eingetragen.
 
 ## Entwicklung
 
