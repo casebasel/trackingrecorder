@@ -50,3 +50,16 @@ anheben. Rover 1 steht beide Male still.
   beim Export Sprünge des Koordinatensystems herausrechnen.
 - Gleiche aufeinanderfolgende Posen zählen und anzeigen („Totzone aktiv?").
 - FBX-Export im selben Schema (TCHour…TCFrame), damit Unreal den Timecode übernimmt.
+
+## Test 1 (14:53:04 – 14:53:24): nur durchlaufen, keinen Tracker angefasst
+
+`RawData_2026-11-10_14-53-04_test1-durchlaufen.fbx` + FreeD-Mitschnitt im selben Zeitraum:
+
+- Rover 1 (Kamera): Spanne unter 0,3 mm, Drehung 0,000° — **stabil**. Keine Sprünge.
+- Rover 3: Spanne unter 0,4 mm, Drehung unter 0,04°.
+- Basisstationen: bewegen sich **nicht** (0,0 cm).
+- FreeD zeigt dasselbe wie Path Recorder.
+- Eingefroren: Rover 1 in 410 von 475 FreeD-Paketen gleiche Pose wie davor → Totzone bestätigt sich.
+
+→ **Vermutung A (Abdeckung) ist unwahrscheinlich.** Durchlaufen stört das Tracking nicht.
+Bleibt Vermutung B (Rover 3 als Anker) — Test 2 steht aus.
