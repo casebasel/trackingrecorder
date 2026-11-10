@@ -21,8 +21,12 @@ und nach Unreal Engine bringt. Ersatz für HTC „Path Recorder" (`C:\Program Fi
 - [x] UDP-Empfang in eigenem Thread mit hoher Priorität
 - [x] CSV-Aufnahme, nur anhängend, regelmässig geflusht, inkl. Rohpaket (hex)
 - [x] Konsolen-Tool: Live-Anzeige pro Rover mit Rate in Hz
-- [ ] Echte Mars-Pakete mitschneiden: Einheiten/Achsen prüfen, Spare-Bytes deuten (Zähler? Timecode?)
-- [ ] LiveLink-Strom auf 6666 analysieren — enthält er Timecode?
+- [x] Echte Mars-Pakete mitgeschnitten (10.11.2026, `~/daten/trackingrecorder/2026-11-10_mitschnitt/`):
+  FreeD 25 Hz pro Rover, Prüfsumme ok, **Spare = 0000 → kein Timecode in FreeD**, Zoom/Fokus = 0 (FIZ fehlt in FreeD)
+- [ ] Achsen FreeD ↔ Unreal abgleichen (Rover 3 liegt bei ~0/0/48 mm = Nullpunkt?)
+- [x] Live Link passiv: auf dem Multicast kommen nur 50-Byte-Hello/Ping des UE Message Bus (Protokoll 17/18),
+  **keine Posen** — die gehen nur an angemeldete Empfänger (Node .4)
+- [ ] Message-Bus-Anmeldung nachbauen (Hello → Live-Link-Connect), dann Posen + FIZ + Timecode empfangen
 
 ## Phase 2 — Timecode
 
