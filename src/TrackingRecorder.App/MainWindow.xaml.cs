@@ -34,6 +34,8 @@ public partial class MainWindow : Window
 
     MarsClient? _client;
     MarsRemote? _remote;
+    readonly Updater _updater = new();
+    readonly DispatcherTimer _updateTimer = new() { Interval = TimeSpan.FromMinutes(30) };
     StageListener? _stage;
     readonly Queue<MarsSample> _vorlauf = new();   // letzte 2 s, damit ein spätes REC nichts abschneidet
     const int VorlaufMax = 50;
@@ -75,7 +77,10 @@ public partial class MainWindow : Window
         AchsenKopf.Text = string.Format(CultureInfo.InvariantCulture, "{0,7}  {1,7}  {2,7} m", "X", "Y", "Z");
         _poll.Tick += async (_, _) => await PollRemote();
         _poll.Start();
-        Version.Text = "v" + (typeof(MainWindow).Assembly.GetName().Version?.ToString(3) ?? "?");
+        Version.Text = "v" + _updater.Version;
+        _updateTimer.Tick += async (_, _) => await UpdatePruefen();
+        _updateTimer.Start();
+        Loaded += async (_, _) => await UpdatePruefen();
         _ui.Tick += (_, _) => Refresh();
         _ui.Start();
         Connect();
@@ -218,6 +223,24 @@ public partial class MainWindow : Window
         var rover = _status?.Rovers.FirstOrDefault(r => r.Serial == d.Serial);
         string role = KnownRoles.TryGetValue(d.Serial, out var r2) ? " · " + r2 : "";
         return rover is not null && rover.Port is >= 0 and < 4 ? $"Rover {rover.RoverNumber}{role}" : "Tracker" + role;
+    }
+
+    // ---------- Updates ----------
+
+    async Task UpdatePruefen()
+    {
+        await _updater.PruefenAsync();
+        UpdateText.Text = _updater.Zustand;
+        UpdateText.Foreground = _updater.BereitVersion is null ? Theme.Get("Text2") : Theme.Get("Blau");
+        UpdateButton.Visibility = _updater.BereitVersion is null ? Visibility.Collapsed : Visibility.Visible;
+        UpdateButton.IsEnabled = _recorder is null;
+    }
+
+    void OnUpdateRestart(object sender, RoutedEventArgs e)
+    {
+        if (_recorder is not null) { MessageBox.Show(this, "Zuerst die Aufnahme stoppen."); return; }
+        _client?.Dispose();   // bei Mars abmelden, bevor die App beendet wird
+        _updater.JetztNeuStarten();
     }
 
     // ---------- Stage (VP Companion App): REC/Cut der Klappe ----------
@@ -365,6 +388,7 @@ public partial class MainWindow : Window
                 _startTc = _latest?.Tc.ToString();
             }
             _ausloeser = ausloeser;
+        UpdateButton.IsEnabled = false;
         }
         catch (Exception ex) { MessageBox.Show(this, "Datei geht nicht: " + ex.Message); return; }
 
@@ -412,6 +436,7 @@ public partial class MainWindow : Window
                               (clean ? " · ohne Störung" : $" · {mon.MissingFrames + mon.Jumps + mon.BaseShifts} Störungen");
             TakeStatus.Foreground = clean ? Theme.Get("Text2") : Warn;
         }
+        UpdateButton.IsEnabled = true;
         if (_ausloeser == "Hand") TakeBox.Text = TakeNames.Next(TakeBox.Text);
         _stageTake = null;
         _settings.NextTake = TakeBox.Text;
@@ -455,6 +480,7 @@ public partial class MainWindow : Window
         _client?.Dispose();   // meldet sich bei Mars ab
         _remote?.Dispose();
         _stage?.Dispose();
+        _updater.BeimBeendenEinspielen();
     }
 }
 

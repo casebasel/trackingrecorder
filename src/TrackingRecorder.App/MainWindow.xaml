@@ -222,7 +222,12 @@
         <!-- Statusleiste -->
         <Border Grid.Row="3" Background="{DynamicResource Flaeche}" BorderBrush="{DynamicResource Linie}" BorderThickness="0,1,0,0" Padding="20,0">
             <DockPanel VerticalAlignment="Center">
-                <TextBlock x:Name="Version" DockPanel.Dock="Right" Style="{StaticResource Zahl}" Foreground="{DynamicResource Text2}" FontSize="11"/>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <TextBlock x:Name="UpdateText" Style="{StaticResource Zweit}" FontSize="11" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <Button x:Name="UpdateButton" Content="Neu starten" Height="22" FontSize="12" Padding="8,0" Margin="0,0,10,0"
+                            Visibility="Collapsed" Click="OnUpdateRestart" ToolTip="Spielt das Update ein und startet die App neu."/>
+                    <TextBlock x:Name="Version" Style="{StaticResource Zahl}" Foreground="{DynamicResource Text2}" FontSize="11" VerticalAlignment="Center"/>
+                </StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Mars" Style="{StaticResource Zweit}" VerticalAlignment="Center" Margin="0,0,6,0"/>
                     <TextBox x:Name="IpBox" Width="120" Height="22" FontFamily="{StaticResource Mono}" FontSize="11" Background="{DynamicResource Grund}"/>

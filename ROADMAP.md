@@ -63,6 +63,10 @@ Was daraus folgt:
   Geräte mit Drift, Mars-Zustand (Timecode-Eingang, Genlock, Basisstationen, Rover) aus Web-Schnittstelle :7008,
   Ereignisse, Take/Speicherort/Aufnahme; Take-Zusammenfassung als JSON. Prüfbild: `--bild <png> [--hell|--dunkel] [--rec]`
 - [ ] Rover 1 meldet seit 10.11. Zustand 4 (ohne Objektiv-Encoder; im September 5) → Encoder prüfen
+- [x] **Installation und Updates** (v0.5.0, Velopack): Installer `TrackingRecorder-win-Setup.exe` aus den GitHub-Releases,
+  pro Benutzer unter %LOCALAPPDATA%\TrackingRecorder, Startmenü + Desktop. Sucht beim Start und alle 30 min, lädt im
+  Hintergrund, spielt beim Schliessen ein; „Neu starten" in der Statusleiste (gesperrt während der Aufnahme).
+  Veröffentlichen: Version im App-csproj erhöhen, dann `werkzeuge/release.sh`. Repo seit 10.11.2026 öffentlich.
 - [ ] Weiterleiten des FreeD-Stroms an Unreal (App sitzt dazwischen, Unreal bekommt weiter Live-Daten)
 
 ## Phase 4 — Export nach Unreal
