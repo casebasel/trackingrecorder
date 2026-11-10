@@ -6,6 +6,19 @@ using TrackingRecorder.Core;
 //   trackingrecorder [--port 6001] [--fps 25] [--out aufnahme.csv]
 //   trackingrecorder mitschnitt [--relay 10.10.10.70:7001] [--out datei.txt]   Rohmitschnitt FreeD + Live Link
 //   trackingrecorder mars [--ip 192.168.100.60] [--out take.csv] [--relay host:port]   Mars-Strom wie Path Recorder
+//   trackingrecorder stage [--host 192.168.100.20]   nur mithören: REC-Start/Stop der Stage anzeigen
+if (args.Length > 0 && args[0] == "stage")
+{
+    string host = args.Length > 2 && args[1] == "--host" ? args[2] : "192.168.100.20";
+    using var st = new StageListener(host, Environment.MachineName);
+    st.ConnectionChanged += c => Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] Stage {(c ? "verbunden" : "getrennt")}");
+    st.TakeStarted += t => Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] REC  {t.Name}  id {t.Id}  startTc {t.StartTc}");
+    st.TakeStopped += id => Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] STOP id {id}");
+    var halt = new ManualResetEventSlim();
+    Console.CancelKeyPress += (_, e) => { e.Cancel = true; halt.Set(); };
+    while (!halt.Wait(5000)) Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] Stage {(st.Connected ? "verbunden" : "nicht verbunden")} · Einstellung {st.Einstellung ?? "–"} · nächster Take {st.NaechsterTakeId ?? "–"}");
+    return 0;
+}
 if (args.Length > 0 && args[0] == "mars") return TrackingRecorder.Cli.MarsModus.Run(args);
 if (args.Length > 0 && args[0] == "mitschnitt") return TrackingRecorder.Cli.Mitschnitt.Run(args);
 

@@ -205,6 +205,9 @@
                     </DockPanel>
                 </StackPanel>
                 <StackPanel Grid.Column="4" VerticalAlignment="Bottom">
+                    <CheckBox x:Name="KlappeBox" Content="Mit der Klappe aufnehmen" IsChecked="True" HorizontalAlignment="Right"
+                              Foreground="{DynamicResource Text}" FontSize="13" Margin="0,0,0,8" Checked="OnKlappeChanged" Unchecked="OnKlappeChanged"
+                              ToolTip="REC und Cut an der Stage (iOS-Klappe oder Kamera) starten und stoppen die Aufnahme. Take-Name und Take-ID kommen von der Stage."/>
                     <TextBlock x:Name="TakeStatus" Text=" " Style="{StaticResource Zahl}" HorizontalAlignment="Right" Margin="0,0,0,6"/>
                     <Button x:Name="RecButton" Style="{StaticResource Haupt}" MinWidth="200" Click="OnRec">
                         <StackPanel Orientation="Horizontal">

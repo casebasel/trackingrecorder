@@ -93,7 +93,12 @@ Idee Marlon 10.11.2026: Marker auf der Leinwand / nDisplay, Track in Nuke, Syste
 
 ## Phase 6 — Anbindung VP Companion App (zweiter Schritt)
 
-- [ ] Takes und Aufnahmen mit Stage-Server und Klappe synchronisieren (Take-ID, REC/Stop, Timecode)
+- [x] **Mithören bei der Stage** (v0.4.0): ws://192.168.100.20:4400/client?quelle=trackingrecorder&schmal=1, Ereignis
+  `sitzung` (takeLaeuft / laufenderTake). „Mit der Klappe aufnehmen": REC/Cut der Klappe startet/stoppt die Aufnahme,
+  Take-Name = Projekt_Einstellung_Tnn, Stage-Take-ID in der JSON, 2 s Vorlauf, 1 s Nachlauf. Live-Test mit echter Klappe steht aus.
+- [ ] Rückmeldung an die Stage (Vorschlag Stage-Session: `teilnehmer.melden`, Feld `take.tracking`) — neue Schnittstelle,
+  braucht Marlons Zustimmung und Eintrag in stage-system SCHNITTSTELLEN.md
+- [ ] Klären: Stage-Server sichert Live-Link-Posen je Take schon selbst (data/posen/<takeId>.jsonl auf VM 160) — beides behalten?
 - [ ] Versatz Tracker→Perspektivpunkt pro Take mitschreiben, aktiv vom Stage-Server (`kamerakal`) holen — siehe `docs/KAMERA-RIG.md`
 
 ## Zugang PC .3 (Aufnahme-PC „i9")

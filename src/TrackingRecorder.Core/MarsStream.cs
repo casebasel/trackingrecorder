@@ -90,8 +90,8 @@ public sealed class MarsClient : IDisposable
     public MarsClient(IPAddress mars, int localPort = DefaultLocalPort)
     {
         _mars = new IPEndPoint(mars, MarsProtocol.Port);
+        // Kein ReuseAddress: Eine zweite Instanz auf demselben Port bekäme still keine Daten — lieber laut scheitern.
         _udp = new UdpClient(AddressFamily.InterNetwork);
-        _udp.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
         _udp.Client.Bind(new IPEndPoint(IPAddress.Any, localPort));
         // Windows: ICMP „Port unreachable" sonst als Fehler beim nächsten Receive (WSAECONNRESET)
         if (OperatingSystem.IsWindows()) _udp.Client.IOControl(-1744830452 /* SIO_UDP_CONNRESET */, [0], null);

@@ -17,7 +17,11 @@ public sealed record TakeInfo(
     long BaseShifts,
     IReadOnlyList<string> Devices,
     IReadOnlyList<string> Events,
-    string App = "TrackingRecorder")
+    string App = "TrackingRecorder",
+    string? StageTakeId = null,
+    string? StageStartTc = null,
+    int VorlaufBilder = 0,
+    string Ausloeser = "Hand")
 {
     static readonly JsonSerializerOptions Options = new() { WriteIndented = true };
 

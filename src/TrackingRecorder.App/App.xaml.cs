@@ -8,6 +8,8 @@ namespace TrackingRecorder.App;
 
 public partial class App : Application
 {
+    Mutex? _single;
+
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
@@ -21,13 +23,21 @@ public partial class App : Application
             RenderBild(args[i + 1], args.Contains("--rec"));
             return;
         }
+        // Nur eine Instanz: zwei Fenster würden sich bei Mars denselben Platz (Port) teilen.
+        _single = new Mutex(true, @"Local\TrackingRecorderApp", out bool first);
+        if (!first)
+        {
+            MessageBox.Show("TrackingRecorder läuft schon. Das offene Fenster benutzen.", "TrackingRecorder");
+            Shutdown();
+            return;
+        }
         Theme.Follow();
         new MainWindow().Show();
     }
 
     void RenderBild(string path, bool rec)
     {
-        var w = new MainWindow();
+        var w = new MainWindow(localPort: 55501);   // eigener Port, damit ein offenes Fenster nicht gestört wird
         var root = (FrameworkElement)w.Content;
         var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
         var sw = System.Diagnostics.Stopwatch.StartNew();

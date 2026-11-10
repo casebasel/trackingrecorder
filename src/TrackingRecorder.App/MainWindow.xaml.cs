@@ -34,6 +34,12 @@ public partial class MainWindow : Window
 
     MarsClient? _client;
     MarsRemote? _remote;
+    StageListener? _stage;
+    readonly Queue<MarsSample> _vorlauf = new();   // letzte 2 s, damit ein spätes REC nichts abschneidet
+    const int VorlaufMax = 50;
+    StageTake? _stageTake;
+    string _ausloeser = "Hand";
+    int _vorlaufBilder;
     MarsRemote.Status? _status;
     string? _remoteError;
     bool _polling;
@@ -54,8 +60,11 @@ public partial class MainWindow : Window
     DateTime _takeStartUtc;
     int _shownEvents;
 
-    public MainWindow()
+    readonly int _localPort;
+
+    public MainWindow(int localPort = MarsClient.DefaultLocalPort)
     {
+        _localPort = localPort;
         InitializeComponent();
         DeviceList.ItemsSource = _devices;
         EventList.ItemsSource = _events;
@@ -70,6 +79,8 @@ public partial class MainWindow : Window
         _ui.Tick += (_, _) => Refresh();
         _ui.Start();
         Connect();
+        KlappeBox.IsChecked = _settings.MitKlappe;
+        ConnectStage();
     }
 
     // ---------- Verbindung ----------
@@ -91,14 +102,16 @@ public partial class MainWindow : Window
             _remote = new MarsRemote(ip.ToString());
             _status = null;
             _ = PollRemote();
-            _client = new MarsClient(ip);
+            _client = new MarsClient(ip, _localPort);
             _client.FrameReceived += OnFrame;
             PortText.Text = $"{ip}:{MarsProtocol.Port} · eigener Port {_client.LocalPort}";
         }
         catch (Exception ex)
         {
             _client = null;
-            _connectError = "Verbindung nicht möglich: " + ex.Message;
+            _connectError = ex is System.Net.Sockets.SocketException { SocketErrorCode: System.Net.Sockets.SocketError.AddressAlreadyInUse }
+                ? $"Port {_localPort} ist belegt — läuft der TrackingRecorder schon?"
+                : "Verbindung nicht möglich: " + ex.Message;
         }
     }
 
@@ -115,7 +128,8 @@ public partial class MainWindow : Window
     {
         lock (_lock)
         {
-            _recorder?.Write(s);
+            if (_recorder is not null) _recorder.Write(s);
+            else { _vorlauf.Enqueue(s); while (_vorlauf.Count > VorlaufMax) _vorlauf.Dequeue(); }
             _takeMonitor?.Add(s.Frame);
             _live.Add(s.Frame);
             _latest = s.Frame;
@@ -206,6 +220,44 @@ public partial class MainWindow : Window
         return rover is not null && rover.Port is >= 0 and < 4 ? $"Rover {rover.RoverNumber}{role}" : "Tracker" + role;
     }
 
+    // ---------- Stage (VP Companion App): REC/Cut der Klappe ----------
+
+    void ConnectStage()
+    {
+        _stage?.Dispose();
+        _stage = new StageListener(_settings.StageHost, Environment.MachineName);
+        _stage.ConnectionChanged += _ => Dispatcher.BeginInvoke(UpdateMarsRows);
+        _stage.TakeStarted += t => Dispatcher.BeginInvoke(() => OnStageStart(t));
+        _stage.TakeStopped += id => Dispatcher.BeginInvoke(() => OnStageStop(id));
+    }
+
+    void OnStageStart(StageTake t)
+    {
+        if (KlappeBox.IsChecked != true) return;
+        if (_recorder is not null)
+        {
+            if (_ausloeser == "Klappe") StopTake();   // neuer Take ohne Cut dazwischen
+            else return;                              // laufende Hand-Aufnahme nicht anfassen
+        }
+        _stageTake = t;
+        TakeBox.Text = t.Name;
+        StartTake("Klappe");
+    }
+
+    async void OnStageStop(string id)
+    {
+        if (_recorder is null || _ausloeser != "Klappe" || _stageTake?.Id != id) return;
+        await Task.Delay(1000);   // Nachlauf 1 s
+        if (_recorder is not null && _ausloeser == "Klappe" && _stageTake?.Id == id) StopTake();
+    }
+
+    void OnKlappeChanged(object sender, RoutedEventArgs e)
+    {
+        _settings.MitKlappe = KlappeBox.IsChecked == true;
+        _settings.Save();
+        if (IsLoaded) UpdateMarsRows();
+    }
+
     // ---------- Mars-Web-Schnittstelle (Port 7008) ----------
 
     async Task PollRemote()
@@ -225,9 +277,12 @@ public partial class MainWindow : Window
         var st = _status;
         MarsWebHinweis.Text = _remoteError is null ? "Web-Schnittstelle :7008" : $"Web-Schnittstelle {_remoteError}";
         _mars.Clear();
-        if (st is null) return;
         void Add(string name, string value, Brush b, bool filled) =>
             _mars.Add(new StatusRow(name, value, b, filled ? b : Brushes.Transparent));
+        bool stageOk = _stage?.Connected == true;
+        Add("Klappe (Stage)", !stageOk ? "nicht verbunden" : KlappeBox.IsChecked == true ? $"steuert · {_stage!.Einstellung ?? "keine Einstellung"}" : "verbunden · aus",
+            stageOk ? Ok : Warn, stageOk);
+        if (st is null) return;
         Add("Timecode-Eingang", st.TimecodeEnabled ? $"an · {st.Timecode}" : "kein Signal", st.TimecodeEnabled ? Ok : Warn, st.TimecodeEnabled);
         Add("Genlock", st.GenlockEnabled ? "synchron" : "aus", st.GenlockEnabled ? Ok : Warn, st.GenlockEnabled);
         Add("Basisstationen online", st.BaseStations.ToString(CultureInfo.InvariantCulture), st.BaseStations >= 2 ? Ok : Warn, st.BaseStations >= 2);
@@ -284,10 +339,10 @@ public partial class MainWindow : Window
 
     void OnRec(object sender, RoutedEventArgs e)
     {
-        if (_recorder is null) StartTake(); else StopTake();
+        if (_recorder is null) { _stageTake = null; StartTake("Hand"); } else StopTake();
     }
 
-    void StartTake()
+    void StartTake(string ausloeser)
     {
         if (_latest is null) { MessageBox.Show(this, "Keine Daten von Mars — Aufnahme nicht möglich."); return; }
         string folder = FolderBox.Text.Trim();
@@ -303,9 +358,13 @@ public partial class MainWindow : Window
             lock (_lock)
             {
                 _takeMonitor = new MarsMonitor();
+                _vorlaufBilder = _vorlauf.Count;
+                foreach (var v in _vorlauf) { rec.Write(v); _takeMonitor.Add(v.Frame); }
+                _vorlauf.Clear();
                 _recorder = rec;
                 _startTc = _latest?.Tc.ToString();
             }
+            _ausloeser = ausloeser;
         }
         catch (Exception ex) { MessageBox.Show(this, "Datei geht nicht: " + ex.Message); return; }
 
@@ -314,7 +373,7 @@ public partial class MainWindow : Window
         _shownEvents = 0;
         RecText.Text = "Aufnahme stoppen";
         RecButton.Background = RecButton.BorderBrush = Theme.Get("RotFlaeche");
-        TakeStatus.Text = " ";
+        TakeStatus.Text = ausloeser == "Klappe" ? $"gestartet von der Klappe · Stage-Take {_stageTake?.Id}" : " ";
         TakeBox.IsEnabled = FolderBox.IsEnabled = FolderButton.IsEnabled = IpBox.IsEnabled = ReconnectButton.IsEnabled = false;
         _settings.Folder = folder;
         _settings.Save();
@@ -344,7 +403,8 @@ public partial class MainWindow : Window
             lock (mon.Events) events = mon.Events.ToList();
             var info = new TakeInfo(_takeName!, Path.GetFileName(_takeCsv), _takeStartUtc, DateTime.UtcNow,
                 _startTc ?? "", last?.Tc.ToString() ?? "", last?.Fps ?? 0, mon.Frames, mon.MissingFrames, mon.Jumps,
-                mon.BaseShifts, last?.Devices.Select(d => d.Serial).ToList() ?? new List<string>(), events);
+                mon.BaseShifts, last?.Devices.Select(d => d.Serial).ToList() ?? new List<string>(), events,
+                StageTakeId: _stageTake?.Id, StageStartTc: _stageTake?.StartTc, VorlaufBilder: _vorlaufBilder, Ausloeser: _ausloeser);
             try { info.Save(Path.ChangeExtension(_takeCsv, ".json")); } catch { /* CSV ist das Wichtige */ }
 
             bool clean = mon.MissingFrames + mon.Jumps + mon.BaseShifts == 0;
@@ -352,7 +412,8 @@ public partial class MainWindow : Window
                               (clean ? " · ohne Störung" : $" · {mon.MissingFrames + mon.Jumps + mon.BaseShifts} Störungen");
             TakeStatus.Foreground = clean ? Theme.Get("Text2") : Warn;
         }
-        TakeBox.Text = TakeNames.Next(TakeBox.Text);
+        if (_ausloeser == "Hand") TakeBox.Text = TakeNames.Next(TakeBox.Text);
+        _stageTake = null;
         _settings.NextTake = TakeBox.Text;
         _settings.Save();
     }
@@ -362,7 +423,7 @@ public partial class MainWindow : Window
     {
         _settings.ReadOnly = true;
         FolderBox.Text = Path.Combine(Path.GetTempPath(), "TrackingRecorder-Vorschau");
-        StartTake();
+        StartTake("Hand");
     }
 
     internal void StopForPreview()
@@ -375,7 +436,7 @@ public partial class MainWindow : Window
     /// <summary>Verbindung lösen ohne Fenster (Prüfbild).</summary>
     internal bool HasMarsStatus => _status is not null;
 
-    internal void Shutdown() { _client?.Dispose(); _remote?.Dispose(); }
+    internal void Shutdown() { _client?.Dispose(); _remote?.Dispose(); _stage?.Dispose(); }
 
     void OnPickFolder(object sender, RoutedEventArgs e)
     {
@@ -393,6 +454,7 @@ public partial class MainWindow : Window
         }
         _client?.Dispose();   // meldet sich bei Mars ab
         _remote?.Dispose();
+        _stage?.Dispose();
     }
 }
 
@@ -440,6 +502,8 @@ public sealed class Settings
     public string MarsIp { get; set; } = "192.168.100.60";
     public string Folder { get; set; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "TrackingRecorder", "Takes");
     public string NextTake { get; set; } = "Take_001";
+    public bool MitKlappe { get; set; } = true;
+    public string StageHost { get; set; } = "192.168.100.20";
 
     /// <summary>Für Prüfbilder: nichts auf die Platte schreiben.</summary>
     [System.Text.Json.Serialization.JsonIgnore] public bool ReadOnly { get; set; }
