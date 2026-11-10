@@ -3,6 +3,17 @@
 Ziel: stabile Windows-App, die das Kamera-Tracking von VIVE Mars CamTrack mit Timecode aufnimmt
 und nach Unreal Engine bringt. Ersatz für HTC „Path Recorder" (`C:\Program Files\VIVE Mars\Path Recorder\`).
 
+**Endziel (Marlon, 10.11.2026):** Greenscreen-Dreh mit echter Kamerabewegung, Hintergrund **nachträglich**
+in Unreal rendern. Dafür braucht es ein sehr sauberes Tracking: bildgenau zum Clip (Timecode), richtige
+Perspektive (Eintrittspupille, nicht Tracker), passende Objektivdaten.
+
+Was daraus folgt:
+- Offline statt live: Nachbearbeitung darf vor- und zurückschauen (glätten ohne Verzögerung, Lücken
+  sauber füllen). Die Rohaufnahme bleibt trotzdem immer unverändert erhalten.
+- Bildgenaue Zuordnung zum Kamera-Clip über Timecode, Versatz Tracker↔Bild messbar machen.
+- Objektiv: Brennweite, Fokus, Verzeichnung — sonst rutscht der Hintergrund trotz gutem Tracking.
+- Prüfen gegen das Bild: Tracking-Marker auf dem Greenscreen, Restfehler in Pixeln messen.
+
 ## Bekannt (Setup Studio)
 
 - Mars-Box: `192.168.100.60`, Web-API „Remote Control" auf `http://192.168.100.60:7008`
