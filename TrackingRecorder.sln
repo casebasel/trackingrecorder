@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{ED6C5371
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrackingRecorder.Tests", "tests\TrackingRecorder.Tests\TrackingRecorder.Tests.csproj", "{EF7A0E74-B8B8-4152-B83B-0EA1411F7164}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrackingRecorder.App", "src\TrackingRecorder.App\TrackingRecorder.App.csproj", "{A5E69D71-3E52-47C5-AD51-150378CAAA71}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,10 +36,15 @@ Global
 		{EF7A0E74-B8B8-4152-B83B-0EA1411F7164}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EF7A0E74-B8B8-4152-B83B-0EA1411F7164}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EF7A0E74-B8B8-4152-B83B-0EA1411F7164}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A5E69D71-3E52-47C5-AD51-150378CAAA71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5E69D71-3E52-47C5-AD51-150378CAAA71}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5E69D71-3E52-47C5-AD51-150378CAAA71}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5E69D71-3E52-47C5-AD51-150378CAAA71}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{4C226350-7029-4C32-B7EA-B11752228927} = {4C68A271-89F2-4351-B61B-09E74A0C7052}
 		{3079CD31-5E07-424A-8E87-A9E390B1DA8A} = {4C68A271-89F2-4351-B61B-09E74A0C7052}
 		{EF7A0E74-B8B8-4152-B83B-0EA1411F7164} = {ED6C5371-2698-4552-90C5-26DBC56377CF}
+		{A5E69D71-3E52-47C5-AD51-150378CAAA71} = {4C68A271-89F2-4351-B61B-09E74A0C7052}
 	EndGlobalSection
 EndGlobal

@@ -27,3 +27,16 @@ public class FreeDTests
     public void Timecode_From25fps(double seconds, string expected) =>
         Assert.Equal(expected, Timecode.FromTimeOfDay(TimeSpan.FromSeconds(seconds), 25).ToString());
 }
+
+public class TakeNameTests
+{
+    [Theory]
+    [InlineData("Take_001", "Take_002")]
+    [InlineData("Take_009", "Take_010")]
+    [InlineData("Shot", "Shot_002")]
+    [InlineData("A12", "A13")]
+    public void Next(string a, string b) => Assert.Equal(b, TakeNames.Next(a));
+
+    [Fact]
+    public void SafeRemovesInvalidChars() => Assert.Equal("Sz_1_Take_2", TakeNames.Safe("Sz:1/Take?2"));
+}

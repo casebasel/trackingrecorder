@@ -59,7 +59,10 @@ Was daraus folgt:
 
 ## Phase 3 — Windows-App
 
-- [ ] WPF-Oberfläche: Rover-Status, Rec/Stop, Take-Namen, Speicherort
+- [x] WPF-Oberfläche `TrackingRecorderApp.exe` (v0.3.0, Design von syncomat, `DESIGN.md`): Lage, Timecode-Tafel,
+  Geräte mit Drift, Mars-Zustand (Timecode-Eingang, Genlock, Basisstationen, Rover) aus Web-Schnittstelle :7008,
+  Ereignisse, Take/Speicherort/Aufnahme; Take-Zusammenfassung als JSON. Prüfbild: `--bild <png> [--hell|--dunkel] [--rec]`
+- [ ] Rover 1 meldet seit 10.11. Zustand 4 (ohne Objektiv-Encoder; im September 5) → Encoder prüfen
 - [ ] Weiterleiten des FreeD-Stroms an Unreal (App sitzt dazwischen, Unreal bekommt weiter Live-Daten)
 
 ## Phase 4 — Export nach Unreal
