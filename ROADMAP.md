@@ -46,13 +46,13 @@ und nach Unreal Engine bringt. Ersatz für HTC „Path Recorder" (`C:\Program Fi
 ## Phase 5 — Tracking verbessern
 
 - [ ] Klären, ob Mars ungeglättete Rohdaten liefern kann (Glättung in Mars aus, eigene Filter)
-- [ ] Eigene Glättung (One-Euro / Kalman), live und nachträglich
+- [ ] Aufnahme bleibt immer roh. Glättung nur optional beim Export (One-Euro / Kalman), abschaltbar
 - [ ] Latenzausgleich, Lücken füllen, Tracker→Sensor-Versatz
 
 ## Phase 6 — Anbindung VP Companion App (zweiter Schritt)
 
 - [ ] Takes und Aufnahmen mit Stage-Server und Klappe synchronisieren (Take-ID, REC/Stop, Timecode)
-- [ ] Tracker→Sensor-Versatz des Kamera-Rigs aus dem Unreal-Rig der VP Companion App übernehmen
+- [ ] Versatz Tracker→Perspektivpunkt pro Take mitschreiben, aktiv vom Stage-Server (`kamerakal`) holen — siehe `docs/KAMERA-RIG.md`
 
 ## Entwicklung
 
