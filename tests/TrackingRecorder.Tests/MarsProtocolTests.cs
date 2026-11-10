@@ -51,3 +51,25 @@ public class MarsProtocolTests
         Assert.Equal(0, m.MissingFrames);
     }
 }
+
+public class MarsFilterTests
+{
+    static MarsFrame Frame(int i, double x) => new(i * 40.0, new Timecode(0, 0, i / 25, i % 25, 25), 25,
+        new[] { new MarsDevice("LHR-TEST", x, 1, 0, 0, 0, 0, 1) });
+
+    [Fact]
+    public void ErkenntFilterAnUndAus()
+    {
+        var an = new MarsMonitor();
+        for (int i = 0; i < 60; i++) an.Add(Frame(i, 1.0));                      // eingefroren
+        Assert.Equal("an", an.FilterSchaetzung);
+
+        var aus = new MarsMonitor();
+        for (int i = 0; i < 60; i++) aus.Add(Frame(i, 1.0 + (i % 2) * 0.0001)); // 0,1 mm Rauschen
+        Assert.Equal("aus", aus.FilterSchaetzung);
+
+        var kurz = new MarsMonitor();
+        for (int i = 0; i < 10; i++) kurz.Add(Frame(i, 1.0));
+        Assert.Equal("unbekannt", kurz.FilterSchaetzung);
+    }
+}

@@ -339,6 +339,10 @@ public partial class MainWindow : Window
         Add("Ablage (NAS)", _ablageOrt is null ? "nicht gefunden" : offen > 0 ? $"{offen} Take(s) offen" : $"bereit · {_ablageOrt}",
             _ablageOrt is not null && offen == 0 ? Ok : Warn, _ablageOrt is not null && offen == 0);
         if (offen > 0 && fehler is not null) Add("", fehler, Warn, false);
+        var mon = _takeMonitor ?? _live;
+        string fs = mon.FilterSchaetzung;
+        Add("Mars-Filter (aus Daten)", fs == "unbekannt" ? "unbekannt · zu wenig Ruhe" : $"{fs} · {mon.FilterAnteilGleich:P0} gleich",
+            fs == "aus" ? Ok : Warn, fs == "aus");
         if (st is null) return;
         Add("Timecode-Eingang", st.TimecodeEnabled ? $"an · {st.Timecode}" : "kein Signal", st.TimecodeEnabled ? Ok : Warn, st.TimecodeEnabled);
         Add("Genlock", st.GenlockEnabled ? "synchron" : "aus", st.GenlockEnabled ? Ok : Warn, st.GenlockEnabled);
@@ -463,7 +467,8 @@ public partial class MainWindow : Window
             var info = new TakeInfo(_takeName!, Path.GetFileName(_takeCsv), _takeStartUtc, DateTime.UtcNow,
                 _startTc ?? "", last?.Tc.ToString() ?? "", last?.Fps ?? 0, mon.Frames, mon.MissingFrames, mon.Jumps,
                 mon.BaseShifts, last?.Devices.Select(d => d.Serial).ToList() ?? new List<string>(), events,
-                StageTakeId: _stageTake?.Id, StageStartTc: _stageTake?.StartTc, VorlaufBilder: _vorlaufBilder, Ausloeser: _ausloeser);
+                StageTakeId: _stageTake?.Id, StageStartTc: _stageTake?.StartTc, VorlaufBilder: _vorlaufBilder, Ausloeser: _ausloeser,
+                Filter: new MarsFilter(mon.FilterSchaetzung, Math.Round(mon.FilterAnteilGleich, 3), mon.RuhigeBilder));
             try { info.Save(Path.ChangeExtension(_takeCsv, ".json")); } catch { /* CSV ist das Wichtige */ }
             // Klappen-Takes mit Projekt aufs NAS (Systemkarte: 08_TRACKING im Drehordner); Hand-Takes bleiben lokal.
             if (_ausloeser == "Klappe" && _stageTake is { Projekt: { Length: > 0 } projekt } st)

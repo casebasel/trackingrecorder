@@ -21,12 +21,17 @@ public sealed record TakeInfo(
     string? StageTakeId = null,
     string? StageStartTc = null,
     int VorlaufBilder = 0,
-    string Ausloeser = "Hand")
+    string Ausloeser = "Hand",
+    MarsFilter? Filter = null)
 {
     static readonly JsonSerializerOptions Options = new() { WriteIndented = true };
 
     public void Save(string path) => File.WriteAllText(path, JsonSerializer.Serialize(this, Options));
 }
+
+/// <summary>Aus den Daten geschätzter Zustand des Mars-Filters (Wunsch Stage/Marlon 10.11.2026).</summary>
+public sealed record MarsFilter(string Schaetzung, double AnteilGleich, long RuhigeBilder, string Herleitung =
+    "Anteil bitgenau gleicher Posen bei ruhigen Trackern (< 1 mm): ≥ 30 % = an, ≤ 5 % = aus, sonst oder < 25 ruhige Bilder = unbekannt");
 
 public static class TakeNames
 {

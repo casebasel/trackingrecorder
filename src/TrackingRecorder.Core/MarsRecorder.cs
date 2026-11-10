@@ -62,6 +62,16 @@ public sealed class MarsMonitor
     double _lastDeviceMs = double.NaN;
 
     public long Frames, MissingFrames, Jumps, BaseShifts;
+
+    // Mars-Filter („Tracking stationary tolerance") erkennen: Bei ruhigem Tracker friert Mars mit Filter die Pose ein —
+    // viele Bilder sind bitgenau gleich. Ohne Filter rauscht jede Pose (Messung 10.11.2026: 80–85 % gleich vs. 0 %).
+    public long RuhigeBilder, GleicheBilder;
+    const double RuhigM = 0.001;   // < 1 mm Bewegung zum Vorbild = ruhig
+
+    /// <summary>„an", „aus" oder „unbekannt" (zu wenig ruhige Bilder, &lt; 1 s).</summary>
+    public string FilterSchaetzung => RuhigeBilder < 25 ? "unbekannt"
+        : FilterAnteilGleich >= 0.3 ? "an" : FilterAnteilGleich <= 0.05 ? "aus" : "unbekannt";
+    public double FilterAnteilGleich => RuhigeBilder == 0 ? 0 : (double)GleicheBilder / RuhigeBilder;
     public readonly List<string> Events = new();
 
     public void Add(MarsFrame f)
@@ -89,7 +99,15 @@ public sealed class MarsMonitor
                         Log(f, $"Basisstation {d.Serial} verschoben um {shift * 1000:F1} mm — Kartensprung");
                     }
                 }
-                else if (Dist(d, prev) > JumpLimitM)
+                else
+                {
+                    if (Dist(d, prev) < RuhigM)
+                    {
+                        RuhigeBilder++;
+                        if (d == prev) GleicheBilder++;
+                    }
+                }
+                if (!d.IsBaseStation && Dist(d, prev) > JumpLimitM)
                 {
                     Jumps++;
                     Log(f, $"Sprung {d.Serial}: {Dist(d, prev) * 100:F1} cm in einem Bild");
