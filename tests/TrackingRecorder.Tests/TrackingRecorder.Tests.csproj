@@ -24,4 +24,8 @@
     <ProjectReference Include="..\..\src\TrackingRecorder.Core\TrackingRecorder.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="mars_frame_sample.hex" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

@@ -5,6 +5,8 @@ using TrackingRecorder.Core;
 // Erste Testversion: FreeD empfangen, live anzeigen, optional als CSV aufnehmen.
 //   trackingrecorder [--port 6001] [--fps 25] [--out aufnahme.csv]
 //   trackingrecorder mitschnitt [--relay 10.10.10.70:7001] [--out datei.txt]   Rohmitschnitt FreeD + Live Link
+//   trackingrecorder mars [--ip 192.168.100.60] [--out take.csv] [--relay host:port]   Mars-Strom wie Path Recorder
+if (args.Length > 0 && args[0] == "mars") return TrackingRecorder.Cli.MarsModus.Run(args);
 if (args.Length > 0 && args[0] == "mitschnitt") return TrackingRecorder.Cli.Mitschnitt.Run(args);
 
 int port = 6001;

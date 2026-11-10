@@ -40,7 +40,12 @@ Was daraus folgt:
 - [ ] Achsen FreeD ↔ Unreal abgleichen (Rover 3 liegt bei ~0/0/48 mm = Nullpunkt?)
 - [x] Live Link passiv: auf dem Multicast kommen nur 50-Byte-Hello/Ping des UE Message Bus (Protokoll 17/18),
   **keine Posen** — die gehen nur an angemeldete Empfänger (Node .4)
-- [ ] Message-Bus-Anmeldung nachbauen (Hello → Live-Link-Connect), dann Posen + FIZ + Timecode empfangen
+- [x] **Mars-Datenstrom UDP 5500 entschlüsselt** (Weg von Path Recorder, Mitschnitt 10.11.2026): Anfrage `07`/`06`,
+  pro Bild Timecode, Geräte-Zeit, alle Tracker **und Basisstationen** (Position m, Quaternion). Aufbau in
+  `src/TrackingRecorder.Core/MarsStream.cs`. Mars antwortet nur ins Studio-LAN (nicht an VM 170).
+- [x] Modus `mars` in der exe: Aufnahme CSV + Rohdatei, Live-Prüfung fehlende Bilder / Sprünge / Kartensprünge
+- [ ] Zuordnung Seriennummer ↔ Rover-Port (LHR-0FFCBEE6 = Rover 1 Kamera, LHR-16D49F61 = Rover 3)
+- [ ] Message-Bus-Anmeldung nachbauen (nur noch nötig für FIZ, falls nicht über FreeD) (Hello → Live-Link-Connect), dann Posen + FIZ + Timecode empfangen
 
 ## Phase 2 — Timecode
 
