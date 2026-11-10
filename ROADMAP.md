@@ -101,6 +101,12 @@ Idee Marlon 10.11.2026: Marker auf der Leinwand / nDisplay, Track in Nuke, Syste
 - [x] **Mithören bei der Stage** (v0.4.0): ws://192.168.100.20:4400/client?quelle=trackingrecorder&schmal=1, Ereignis
   `sitzung` (takeLaeuft / laufenderTake). „Mit der Klappe aufnehmen": REC/Cut der Klappe startet/stoppt die Aufnahme,
   Take-Name = Projekt_Einstellung_Tnn, Stage-Take-ID in der JSON, 2 s Vorlauf, 1 s Nachlauf. Live-Test mit echter Klappe steht aus.
+- [x] **Ablage auf dem NAS** (v0.6.0, Systemkarte stage-system 4223b1b, Marlon 10.11.2026): Klappen-Takes nach
+  `<Ablage>/<PROJEKT>/<Datum>_STUDIO/08_TRACKING/<Slate>_T<NN>_<studio_take.id>.*`; Ablage über Merkdatei
+  `.stage-ingest-ablage.json` (Laufwerke 2 Ebenen tief, dann \\TRUENAS\Footage); erst lokal, dann kopieren, nie
+  überschreiben, offene Takes jede Minute erneut. Hand-Takes bleiben lokal. Erster echter Lauf steht aus.
+- [ ] Clipname der Kamera übernehmen (im schmalen Stage-Modus nicht verfügbar)
+- [ ] Mars-Filter: Rohdaten nur mit Filter aus, Live/ICVFX braucht ihn an → Stage entscheidet je Dreh (Besitz Mars: Stage)
 - [ ] Rückmeldung an die Stage (Vorschlag Stage-Session: `teilnehmer.melden`, Feld `take.tracking`) — neue Schnittstelle,
   braucht Marlons Zustimmung und Eintrag in stage-system SCHNITTSTELLEN.md
 - [ ] Klären: Stage-Server sichert Live-Link-Posen je Take schon selbst (data/posen/<takeId>.jsonl auf VM 160) — beides behalten?

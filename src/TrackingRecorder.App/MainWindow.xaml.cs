@@ -37,6 +37,11 @@ public partial class MainWindow : Window
     readonly Updater _updater = new();
     readonly DispatcherTimer _updateTimer = new() { Interval = TimeSpan.FromMinutes(30) };
     StageListener? _stage;
+    readonly AblageAuftraege _ablage = new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TrackingRecorder", "ablage-offen.json"));
+    readonly DispatcherTimer _ablageTimer = new() { Interval = TimeSpan.FromMinutes(1) };
+    string? _ablageOrt;
+    bool _ablageLaeuft;
+    DateTime _takeStartLokal;
     readonly Queue<MarsSample> _vorlauf = new();   // letzte 2 s, damit ein spätes REC nichts abschneidet
     const int VorlaufMax = 50;
     StageTake? _stageTake;
@@ -88,6 +93,9 @@ public partial class MainWindow : Window
         Connect();
         KlappeBox.IsChecked = _settings.MitKlappe;
         ConnectStage();
+        _ablageTimer.Tick += async (_, _) => await AblageAbarbeiten();
+        _ablageTimer.Start();
+        Loaded += async (_, _) => await AblageAbarbeiten();
     }
 
     // ---------- Verbindung ----------
@@ -227,6 +235,23 @@ public partial class MainWindow : Window
         return rover is not null && rover.Port is >= 0 and < 4 ? $"Rover {rover.RoverNumber}{role}" : "Tracker" + role;
     }
 
+    // ---------- Ablage auf dem NAS (08_TRACKING im Drehordner) ----------
+
+    async Task AblageAbarbeiten()
+    {
+        if (_ablageLaeuft) return;
+        _ablageLaeuft = true;
+        try
+        {
+            var (ort, fertig) = await Task.Run(() => (Ablage.Finden(), _ablage.Abarbeiten()));
+            _ablageOrt = ort;
+            foreach (var a in fertig)
+                if (_recorder is null) { TakeStatus.Text = $"abgelegt: {a.AbgelegtIn}"; TakeStatus.Foreground = Theme.Get("Text2"); }
+        }
+        finally { _ablageLaeuft = false; }
+        UpdateMarsRows();
+    }
+
     // ---------- Updates ----------
 
     async Task UpdatePruefen()
@@ -309,6 +334,11 @@ public partial class MainWindow : Window
         bool stageOk = _stage?.Connected == true;
         Add("Klappe (Stage)", !stageOk ? "nicht verbunden" : KlappeBox.IsChecked == true ? $"steuert · {_stage!.Einstellung ?? "keine Einstellung"}" : "verbunden · aus",
             stageOk ? Ok : Warn, stageOk);
+        int offen = _ablage.Offen.Count;
+        string? fehler = _ablage.Offen.Select(a => a.Fehler).FirstOrDefault(x => x is not null);
+        Add("Ablage (NAS)", _ablageOrt is null ? "nicht gefunden" : offen > 0 ? $"{offen} Take(s) offen" : $"bereit · {_ablageOrt}",
+            _ablageOrt is not null && offen == 0 ? Ok : Warn, _ablageOrt is not null && offen == 0);
+        if (offen > 0 && fehler is not null) Add("", fehler, Warn, false);
         if (st is null) return;
         Add("Timecode-Eingang", st.TimecodeEnabled ? $"an · {st.Timecode}" : "kein Signal", st.TimecodeEnabled ? Ok : Warn, st.TimecodeEnabled);
         Add("Genlock", st.GenlockEnabled ? "synchron" : "aus", st.GenlockEnabled ? Ok : Warn, st.GenlockEnabled);
@@ -397,6 +427,7 @@ public partial class MainWindow : Window
         catch (Exception ex) { MessageBox.Show(this, "Datei geht nicht: " + ex.Message); return; }
 
         _takeStartUtc = DateTime.UtcNow;
+        _takeStartLokal = DateTime.Now;
         _events.Clear();
         _shownEvents = 0;
         RecText.Text = "Aufnahme stoppen";
@@ -434,6 +465,12 @@ public partial class MainWindow : Window
                 mon.BaseShifts, last?.Devices.Select(d => d.Serial).ToList() ?? new List<string>(), events,
                 StageTakeId: _stageTake?.Id, StageStartTc: _stageTake?.StartTc, VorlaufBilder: _vorlaufBilder, Ausloeser: _ausloeser);
             try { info.Save(Path.ChangeExtension(_takeCsv, ".json")); } catch { /* CSV ist das Wichtige */ }
+            // Klappen-Takes mit Projekt aufs NAS (Systemkarte: 08_TRACKING im Drehordner); Hand-Takes bleiben lokal.
+            if (_ausloeser == "Klappe" && _stageTake is { Projekt: { Length: > 0 } projekt } st)
+            {
+                _ablage.Add(new AblageAuftraege.Auftrag(_takeCsv, projekt, _takeStartLokal, Ablage.Stamm(st.Einstellung, st.Nummer, st.Id)));
+                _ = AblageAbarbeiten();
+            }
 
             bool clean = mon.MissingFrames + mon.Jumps + mon.BaseShifts == 0;
             TakeStatus.Text = $"{_takeName} gespeichert · {info.StartTimecode} – {info.EndTimecode} · {mon.Frames} Bilder" +
