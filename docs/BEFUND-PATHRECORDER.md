@@ -63,3 +63,23 @@ anheben. Rover 1 steht beide Male still.
 
 → **Vermutung A (Abdeckung) ist unwahrscheinlich.** Durchlaufen stört das Tracking nicht.
 Bleibt Vermutung B (Rover 3 als Anker) — Test 2 steht aus.
+
+## Test 2 (14:53:49 – 14:54:09): nur Rover 3 langsam angehoben und wieder abgelegt
+
+`RawData_2026-11-10_14-53-49_test2-rover3-heben.fbx`:
+
+- Rover 3: sauber von 7 cm auf ~2,03 m und zurück, ohne Ausreisser (max. 2,7 m/s). Abgelegt ~20 cm neben dem Start.
+- Rover 1 (Kamera): Spanne unter 0,5 mm, Drehung 0,01° — **stabil**.
+- Basisstationen: bewegen sich **nicht**.
+
+→ **Vermutung B (Rover 3 als Anker) ist ebenfalls widerlegt.** Anheben von Rover 3 verschiebt die Welt nicht.
+
+## Zwischenstand
+
+Im Normalbetrieb ist Mars stabil (Kamera im Stand < 0,5 mm). Der Fehler in der ersten Aufnahme hängt am
+**Neuberechnen der Raumkarte** (BS1–3 wandern bis 23 cm), nicht an Abdeckung oder Rover 3. Offene Frage:
+Was hat das ausgelöst? Verdacht: Die erste Aufnahme lag kurz nach dem Einstellen des Timecodes am Mars
+(14:44–14:49) — evtl. Neustart/Neuinitialisierung, die sich noch einpendelte.
+
+Für die App heisst das: **Kartenwechsel erkennen ist Pflicht.** Ein solcher Take muss rot markiert werden,
+sonst merkt man es erst beim Rendern. Path Recorder kennt die BS-Posen — woher, gilt es herauszufinden.
