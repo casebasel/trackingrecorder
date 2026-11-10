@@ -99,3 +99,15 @@ sonst merkt man es erst beim Rendern. Path Recorder kennt die BS-Posen — woher
 
 → Massstab ist kein Problem. Die Störungen sind **kurze Fehllagen beim Bewegen** (Rover 3 unter dem Boden)
 und **kleine Drehsprünge der stehenden Kamera**. Beides muss die App erkennen und melden.
+
+## Test 4 (15:01:50 – 15:02:09): nach neuem Ground Setup, 2-m-Test wiederholt
+
+`RawData_2026-11-10_15-01-50_test4-groundsetup-2m.fbx`:
+
+- **Neuer Nullpunkt:** Rover 3 am Boden jetzt bei −1,2 bis −2,1 cm Höhe (vorher +7,7 cm). Kamera (Rover 1)
+  Startlage −109 / 162 / −155 cm (vorher ca. −352 / 173 / −176) → das Koordinatensystem hat sich verschoben.
+- 2,00 m → 200,0 / 199,7 cm. Höhenunterschied über die 2 m: −0,8 cm (Boden oder Bodenebene ~0,2° schief).
+- Basisstationen: **keine Bewegung**. Kamera: stabil (< 0,2 mm). Rover 3: keine Fehllage beim Tragen.
+
+⚠ Das Ground Setup verschiebt die Welt. Alles, was in Mars-Weltkoordinaten eingemessen wurde (Leinwandlage,
+nDisplay-Root der Stage), stimmt danach nicht mehr. Der Versatz Tracker→Pupille liegt im Tracker-Raum und bleibt gültig.
