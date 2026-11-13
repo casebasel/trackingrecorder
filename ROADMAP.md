@@ -110,7 +110,11 @@ Projekt `06_VFX_RENDER/2026-11-12_tracking-test/`.
   zeitlich unzuverlässig (σ 7 Bilder, bis ±0,65 s) — Fehler im Aufbau der Sicherung, Stage behebt in Plugin 0.22.14
 - [x] Mars ↔ Nuke-Solve (T04, A006C003): Zeitversatz −80 ms fest, Zittern 0,09° (≈ 5 px in HD), **systematisch: Mars-Drehwinkel
   2,5–3,5 % grösser als Nuke** (≈ 0,75° RMS) — Ursache offen (Solve-Brennweite/Filmback/Verzeichnung oder Mars)
-- [ ] **90°-Test:** Schwenk um genau bekannten Winkel (Gradskala/Marken) → entscheidet Mars oder Solve
+- [x] **Genesis-Solve** (Unreal-Tracker, COLMAP/GLOMAP, Level GenesisTracking, 13.11.): Drehwinkel **+3,1 %** gegenüber Mars,
+  Zittern 0,32° (≈ 16 px), Reprojektion 8,9 px, Brennweite gelöst 38,4 mm (Kamera-Actor steht auf 35 mm), ohne Verzeichnung.
+  → Mars liegt **zwischen** Nuke (−2,5 %) und Genesis (+3,1 %); der Winkelunterschied kommt sehr wahrscheinlich aus den Solves.
+  Zeitversatz Mars ↔ Bild in beiden Solves −2 … −2,5 Bilder (80–100 ms).
+- [ ] **90°-Test:** Schwenk um genau bekannten Winkel (Gradskala/Marken) → endgültiger Beleg für den Winkelmassstab von Mars
 - [ ] **Schachbrett-Take** (eigener Studio-Take): Brennweite und Verzeichnung des 35 mm messen, Nuke neu lösen
 - [ ] **Render-Vergleich** (Session Gaussian_to_Beeble, Kameras in `kameras/`): T04 mars + nuke, T03 unreal + mars, je Gitter
   und Set → in Nuke über die Clips legen, Rutschen sichtbar machen
