@@ -20,7 +20,7 @@ geliefert (Quelle syncomat `src/App.css` v0.9.39). Umsetzung: `src/TrackingRecor
 grund #FFFFFF | #0E0F12 · flaeche #F4F5F7 | #17191D · linie #D9DCE1 | #2A2D33 · linie-fein #ECEEF1 | #1E2126 ·
 text #111317 | #ECEEF1 · text2 #5B616B | #9AA1AC · kopf #111317 | #000000 · blau #2867E4 | #568EF9 ·
 warn #895200 | #F3B94C (auf Kopf immer #F3B94C) · rot #AC1922 | #FA706A · rot-flaeche #B3232B | #A8282A ·
-ok #006E30 | #61CB7C
+ok #006E30 | #61CB7C · auf-blau #FFFFFF | #0E0F12
 
 ## Signalregeln
 
@@ -30,7 +30,8 @@ ok #006E30 | #61CB7C
 - **Grau gefüllt** = letzter Stand (keine frischen Daten).
 - Form trägt den Zustand: gefüllter Punkt = in Ordnung bzw. letzter Stand, leerer Ring = Störung, Gold-Strich = Ereignis.
   Das Wort steht immer daneben.
-- **Blau** nur für die eine Handlung: „Aufnahme starten".
+- **Blau** nur für die eine Handlung: „Aufnahme starten". Schrift darauf: Tag Weiss, **Nacht #0E0F12** (6,1:1;
+  Weiss hatte nur 3,2:1 — DESIGN-GEMEINSAM 9fc08ec, Marlon 15.11.2026). Auf rot-flaeche (Stopp) bleibt sie Weiss.
 
 ## Knöpfe und Felder
 

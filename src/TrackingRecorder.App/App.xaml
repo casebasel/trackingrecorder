@@ -72,7 +72,7 @@
         <Style x:Key="Haupt" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
             <Setter Property="Background" Value="{DynamicResource Blau}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource Blau}"/>
-            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="Foreground" Value="{DynamicResource AufBlau}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Height" Value="40"/>
             <Setter Property="Padding" Value="20,0"/>

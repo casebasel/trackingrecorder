@@ -16,7 +16,8 @@ public sealed class MarsRemote : IDisposable
     public MarsRemote(string host)
     {
         // Ohne Proxy: die Windows-Proxysuche kostet bei der ersten Abfrage Sekunden, Mars ist immer im LAN.
-        _http = new HttpClient(new HttpClientHandler { UseProxy = false }) { BaseAddress = new Uri($"http://{host}:{Port}/"), Timeout = TimeSpan.FromSeconds(4) };
+        // 15 s: Mars braucht zeitweise 4–6 s pro Antwort (gemessen 12.11.2026).
+        _http = new HttpClient(new HttpClientHandler { UseProxy = false }) { BaseAddress = new Uri($"http://{host}:{Port}/"), Timeout = TimeSpan.FromSeconds(15) };
     }
 
     public sealed record RoverState(string Serial, int Port, int State)

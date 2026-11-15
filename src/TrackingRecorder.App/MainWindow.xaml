@@ -214,8 +214,8 @@
                     <TextBlock x:Name="TakeStatus" Text=" " Style="{StaticResource Zahl}" HorizontalAlignment="Right" Margin="0,0,0,6"/>
                     <Button x:Name="RecButton" Style="{StaticResource Haupt}" MinWidth="200" Click="OnRec">
                         <StackPanel Orientation="Horizontal">
-                            <Ellipse x:Name="RecDot" Width="10" Height="10" Fill="#FFFFFF" VerticalAlignment="Center" Margin="0,1,8,0"/>
-                            <TextBlock x:Name="RecText" Text="Aufnahme starten" Foreground="#FFFFFF" FontWeight="SemiBold" FontSize="14"/>
+                            <Ellipse x:Name="RecDot" Width="10" Height="10" Fill="{DynamicResource AufBlau}" VerticalAlignment="Center" Margin="0,1,8,0"/>
+                            <TextBlock x:Name="RecText" Text="Aufnahme starten" Foreground="{DynamicResource AufBlau}" FontWeight="SemiBold" FontSize="14"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>

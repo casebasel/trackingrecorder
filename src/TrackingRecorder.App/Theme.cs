@@ -22,6 +22,7 @@ public static class Theme
         ("KopfText",   "#FFFFFF", "#FFFFFF"),
         ("KopfText2",  "#B8BEC8", "#9AA1AC"),
         ("Blau",       "#2867E4", "#568EF9"),
+        ("AufBlau",    "#FFFFFF", "#0E0F12"),   // Text auf der blauen Handlung: nachts dunkel (6,1:1), DESIGN-GEMEINSAM 9fc08ec
         ("BlauFlaeche","#E4EFFF", "#162644"),
         ("Warn",       "#895200", "#F3B94C"),
         ("WarnAufKopf","#F3B94C", "#F3B94C"),

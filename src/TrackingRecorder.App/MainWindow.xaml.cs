@@ -436,6 +436,8 @@ public partial class MainWindow : Window
         _shownEvents = 0;
         RecText.Text = "Aufnahme stoppen";
         RecButton.Background = RecButton.BorderBrush = Theme.Get("RotFlaeche");
+        // Auf rot-flaeche bleibt die Schrift weiss (Tag und Nacht ≥ 6:1)
+        RecText.Foreground = RecDot.Fill = Brushes.White;
         TakeStatus.Text = ausloeser == "Klappe" ? $"gestartet von der Klappe · Stage-Take {_stageTake?.Id}" : " ";
         TakeBox.IsEnabled = FolderBox.IsEnabled = FolderButton.IsEnabled = IpBox.IsEnabled = ReconnectButton.IsEnabled = false;
         _settings.Folder = folder;
@@ -457,6 +459,8 @@ public partial class MainWindow : Window
         RecText.Text = "Aufnahme starten";
         RecButton.ClearValue(BackgroundProperty);
         RecButton.ClearValue(BorderBrushProperty);
+        RecText.SetResourceReference(System.Windows.Controls.TextBlock.ForegroundProperty, "AufBlau");
+        RecDot.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "AufBlau");
         TakeBox.IsEnabled = FolderBox.IsEnabled = FolderButton.IsEnabled = IpBox.IsEnabled = ReconnectButton.IsEnabled = true;
         UpdateMarsRows();
 
