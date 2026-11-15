@@ -46,6 +46,8 @@ public partial class MainWindow : Window
     string? _ablageOrt;
     bool _ablageLaeuft;
     DateTime _takeStartLokal;
+    DateTime? _letzterTakeLokal;   // Ende des letzten Takes, für den nächtlichen Update-Neustart
+    readonly DispatcherTimer _nachtTimer = new() { Interval = TimeSpan.FromMinutes(1) };
     readonly Queue<MarsSample> _vorlauf = new();   // letzte 2 s, damit ein spätes REC nichts abschneidet
     const int VorlaufMax = 50;
     StageTake? _stageTake;
@@ -93,6 +95,8 @@ public partial class MainWindow : Window
         Title = $"TrackingRecorder {_updater.Version}";
         _updateTimer.Tick += async (_, _) => await UpdatePruefen();
         _updateTimer.Start();
+        _nachtTimer.Tick += (_, _) => NachtsEinspielen();
+        _nachtTimer.Start();
         Loaded += async (_, _) => await UpdatePruefen();
         _ui.Tick += (_, _) => Refresh();
         _ui.Start();
@@ -263,12 +267,25 @@ public partial class MainWindow : Window
     async Task UpdatePruefen()
     {
         await _updater.PruefenAsync();
-        UpdateText.Text = _updater.Zustand;
+        UpdateText.Text = _updater.BereitVersion is null ? _updater.Zustand : $"{_updater.Zustand} · spielt sich nachts ein (03–05 Uhr, ohne Aufnahme)";
         KopfVersion.Text = $"v{_updater.Version} · {(_updater.BereitVersion is null ? _updater.Zustand : $"Update {_updater.BereitVersion} bereit")}";
         KopfVersion.Foreground = _updater.BereitVersion is null ? Leise : Theme.Get("AkzentText");
         UpdateText.Foreground = _updater.BereitVersion is null ? Leise : Theme.Get("AkzentText");
         UpdateButton.Visibility = _updater.BereitVersion is null ? Visibility.Collapsed : Visibility.Visible;
         UpdateButton.IsEnabled = _recorder is null;
+    }
+
+    /// <summary>Nachts (03–05 Uhr) ein geladenes Update von selbst einspielen, wenn Ruhe ist (Core: NachtUpdate).</summary>
+    void NachtsEinspielen()
+    {
+        if (_settings.ReadOnly) return;   // nie im Prüfbild
+        if (!NachtUpdate.Jetzt(DateTime.Now, _updater.BereitVersion is not null, _recorder is not null,
+                _stage?.Laufend is not null, _ablage.Offen.Count, _letzterTakeLokal)) return;
+        _nachtTimer.Stop();
+        _client?.Dispose();   // bei Mars abmelden
+        _remote?.Dispose();
+        _stage?.Dispose();
+        _updater.JetztNeuStarten();   // spielt ein und startet die App neu
     }
 
     void OnUpdateRestart(object sender, RoutedEventArgs e)
@@ -521,6 +538,7 @@ public partial class MainWindow : Window
             _recorder = null; _takeMonitor = null;
         }
         rec?.Dispose();
+        _letzterTakeLokal = DateTime.Now;
         RecDot.Opacity = 1;
         RecText.Text = "Aufnahme starten";
         RecButton.ClearValue(BackgroundProperty);

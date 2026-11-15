@@ -6,7 +6,7 @@ namespace TrackingRecorder.App;
 /// <summary>
 /// Updates über Velopack aus den GitHub-Releases (öffentliches Repo casebasel/trackingrecorder).
 /// Ablauf: suchen → im Hintergrund laden → beim Schliessen der App einspielen (nie während einer Aufnahme).
-/// „Neu starten" spielt sofort ein. Nicht installierte Kopien (z. B. die exe in C:\claude\…) melden das nur.
+/// „Neu starten" spielt sofort ein; nachts zwischen 03 und 05 Uhr startet die App bei Ruhe von selbst neu (NachtUpdate). Nicht installierte Kopien (z. B. die exe in C:\claude\…) melden das nur.
 /// </summary>
 public sealed class Updater
 {
