@@ -1,5 +1,11 @@
 # Design: TrackingRecorder
 
+**Massgebend ist das Design System „Filmstudio Stage“** (Marlon 15.11.2026): https://claude.ai/artifact/DLVnnCHU46neKXpxK6adYK —
+vor jeder UI-Arbeit `project/README.md` und `project/tokens.json` lesen (Artifact-Tool, action read mit path).
+TrackingRecorder gehört zur Familie **Datenzentrale** (`zentrale-*`-Tokens). Neue gemeinsame Regeln nur über
+stage-system `DESIGN-GEMEINSAM.md`; Widersprüche an stage-system melden, nie selbst im Artefakt ändern.
+Diese Datei hält nur noch die Abweichungen und den Stand der Umsetzung in WPF.
+
 Übernimmt die Gestalt von **syncomat** („Das ruhige Formular", `casebasel/syncomat` DESIGN.md) mit den
 Signalregeln aus `stage-system/DESIGN-GEMEINSAM.md`. Werte am 10.11.2026 von der syncomat-Session als sRGB
 geliefert (Quelle syncomat `src/App.css` v0.9.39). Umsetzung: `src/TrackingRecorder.App/Theme.cs`, `App.xaml`.
