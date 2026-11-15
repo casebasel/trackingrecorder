@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- TrackingRecorder · Set-Apps (Stil Stage Ingest): Graphit-Kachel, Bildrahmen in Hellgrau, Kamerabahn in Bernstein -->
+  <rect width="512" height="512" rx="112" fill="#0f1114"/>
+  <path d="M112 176 V136 Q112 112 136 112 H176 M336 112 H376 Q400 112 400 136 V176 M400 336 V376 Q400 400 376 400 H336 M176 400 H136 Q112 400 112 376 V336"
+        fill="none" stroke="#c9ccd1" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M168 330 C214 330 222 214 270 214 S324 270 344 214" fill="none" stroke="#e08a3c" stroke-width="30" stroke-linecap="round"/>
+  <circle cx="168" cy="330" r="22" fill="#e08a3c"/>
+</svg>

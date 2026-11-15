@@ -21,10 +21,14 @@ public partial class MainWindow : Window
         ["LHR-16D49F61"] = "Kalibrier-Tracker",
     };
 
-    static Brush Ok => Theme.Get("Ok");
     static Brush Warn => Theme.Get("Warn");
-    static Brush Rot => Theme.Get("Rot");
-    static Brush Grau => Theme.Get("Text2");
+    static Brush Leise => Theme.Get("Text3");
+
+    // Halten zum Stoppen (Set-Apps): 0,6 s, Füllung von links in rot-flaeche-gedrueckt; kurzes Tippen stoppt nicht.
+    const double HaltenSek = 0.6;
+    readonly DispatcherTimer _halten = new() { Interval = TimeSpan.FromMilliseconds(15) };
+    readonly System.Diagnostics.Stopwatch _haltenUhr = new();
+    bool _haltenGestoppt;
 
     readonly ObservableCollection<DeviceRow> _devices = new();
     readonly ObservableCollection<EventRow> _events = new();
@@ -80,6 +84,8 @@ public partial class MainWindow : Window
         TakeBox.Text = _settings.NextTake;
         MarsList.ItemsSource = _mars;
         AchsenKopf.Text = string.Format(CultureInfo.InvariantCulture, "{0,7}  {1,7}  {2,7} m", "X", "Y", "Z");
+        _halten.Tick += (_, _) => HaltenTick();
+        RecButton.Tag = 0.0;
         _poll.Tick += async (_, _) => await PollRemote();
         _poll.Start();
         Version.Text = "v" + _updater.Version;
@@ -185,26 +191,26 @@ public partial class MainWindow : Window
         if (recording)
         {
             var dauer = DateTime.UtcNow - _takeStartUtc;
-            SetLamp(LageLampe, Rot, filled: true);
+            LageZeichen.Art = "rec";
             LageText.Text = $"Aufnahme läuft · {_takeName} · {dauer:mm\\:ss}";
             LageMeta.Text = $"seit {_startTc} · {_takeMonitor!.Frames} Bilder · fehlend {_takeMonitor.MissingFrames} · Sprünge {_takeMonitor.Jumps} · Kartensprünge {_takeMonitor.BaseShifts}";
             RecDot.Opacity = DateTime.UtcNow.Millisecond < 600 ? 1 : 0.4;
         }
         else if (_connectError is not null)
         {
-            SetLamp(LageLampe, Warn, filled: false);
+            LageZeichen.Art = "warn";
             LageText.Text = _connectError;
             LageMeta.Text = "IP unten in der Statusleiste prüfen, dann „Neu verbinden“.";
         }
         else if (connected)
         {
-            SetLamp(LageLampe, Ok, filled: true);
+            LageZeichen.Art = "ok";
             LageText.Text = "Mars verbunden. Bereit zur Aufnahme.";
             LageMeta.Text = $"Mars sendet {f!.Fps:0.##} Bilder/s · Takes werden in {FolderBox.Text} gespeichert";
         }
         else
         {
-            SetLamp(LageLampe, Warn, filled: false);
+            LageZeichen.Art = f is null ? "unbekannt" : "warn";
             LageText.Text = f is null ? "Warte auf Daten von Mars …" : $"Seit {age / 1000:F0} s keine Daten von Mars.";
             LageMeta.Text = f is null ? "Mars eingeschaltet und im Netz? Path Recorder darf parallel laufen."
                                       : "Netzwerkkabel und Mars prüfen. Die Aufnahme läuft weiter, sobald Daten kommen.";
@@ -213,7 +219,7 @@ public partial class MainWindow : Window
         if (f is not null)
         {
             TcText.Text = f.Tc.ToString();
-            TcText.Foreground = connected ? Theme.Get("Text") : Grau;
+            TcText.Foreground = connected ? Theme.Get("Text") : Leise;
             UpdateDevices(f, connected);
         }
         GeraeteZahl.Text = _devices.Count.ToString(CultureInfo.InvariantCulture);
@@ -259,8 +265,8 @@ public partial class MainWindow : Window
         await _updater.PruefenAsync();
         UpdateText.Text = _updater.Zustand;
         KopfVersion.Text = $"v{_updater.Version} · {(_updater.BereitVersion is null ? _updater.Zustand : $"Update {_updater.BereitVersion} bereit")}";
-        KopfVersion.Foreground = _updater.BereitVersion is null ? Theme.Get("KopfText2") : Theme.Get("WarnAufKopf");
-        UpdateText.Foreground = _updater.BereitVersion is null ? Theme.Get("Text2") : Theme.Get("Blau");
+        KopfVersion.Foreground = _updater.BereitVersion is null ? Leise : Theme.Get("AkzentText");
+        UpdateText.Foreground = _updater.BereitVersion is null ? Leise : Theme.Get("AkzentText");
         UpdateButton.Visibility = _updater.BereitVersion is null ? Visibility.Collapsed : Visibility.Visible;
         UpdateButton.IsEnabled = _recorder is null;
     }
@@ -327,34 +333,37 @@ public partial class MainWindow : Window
     void UpdateMarsRows()
     {
         var st = _status;
-        MarsWebHinweis.Text = _remoteError is null ? "Web-Schnittstelle :7008" : $"Web-Schnittstelle {_remoteError}";
+        // Web antwortet nicht: letzter Stand bleibt stehen, aber ohne Bewertung (gestrichelter Ring)
+        bool alt = _remoteError is not null;
+        MarsWebHinweis.Text = !alt ? "Web-Schnittstelle :7008" : st is null ? $"Web-Schnittstelle {_remoteError}" : $"{_remoteError} · letzter Stand";
         _mars.Clear();
-        void Add(string name, string value, Brush b, bool filled) =>
-            _mars.Add(new StatusRow(name, value, b, filled ? b : Brushes.Transparent));
+        void Add(string name, string value, string art) =>
+            _mars.Add(new StatusRow(name, value, art, art == "unbekannt" ? Leise : Theme.Get("Text")));
+        string Bewertet(bool ok) => alt ? "unbekannt" : ok ? "ok" : "warn";
+
         bool stageOk = _stage?.Connected == true;
-        Add("Klappe (Stage)", !stageOk ? "nicht verbunden" : KlappeBox.IsChecked == true ? $"steuert · {_stage!.Einstellung ?? "keine Einstellung"}" : "verbunden · aus",
-            stageOk ? Ok : Warn, stageOk);
+        bool klappe = KlappeBox.IsChecked == true;
+        Add("Klappe (Stage)", !stageOk ? "nicht verbunden" : klappe ? $"steuert · {_stage!.Einstellung ?? "keine Einstellung"}" : "verbunden · aus",
+            stageOk ? "ok" : klappe ? "warn" : "unbekannt");
         int offen = _ablage.Offen.Count;
         string? fehler = _ablage.Offen.Select(a => a.Fehler).FirstOrDefault(x => x is not null);
         Add("Ablage (NAS)", _ablageOrt is null ? "nicht gefunden" : offen > 0 ? $"{offen} Take(s) offen" : $"bereit · {_ablageOrt}",
-            _ablageOrt is not null && offen == 0 ? Ok : Warn, _ablageOrt is not null && offen == 0);
-        if (offen > 0 && fehler is not null) Add("", fehler, Warn, false);
+            _ablageOrt is not null && offen == 0 ? "ok" : "warn");
+        if (offen > 0 && fehler is not null) Add("", fehler, "warn");
         var mon = _takeMonitor ?? _live;
         string fs = mon.FilterSchaetzung;
         Add("Mars-Filter (aus Daten)", fs == "unbekannt" ? "unbekannt · zu wenig Ruhe" : $"{fs} · {mon.FilterAnteilGleich:P0} gleich",
-            fs == "aus" ? Ok : Warn, fs == "aus");
-        if (st is null) return;
-        Add("Timecode-Eingang", st.TimecodeEnabled ? $"an · {st.Timecode}" : "kein Signal", st.TimecodeEnabled ? Ok : Warn, st.TimecodeEnabled);
-        Add("Genlock", st.GenlockEnabled ? "synchron" : "aus", st.GenlockEnabled ? Ok : Warn, st.GenlockEnabled);
-        Add("Basisstationen online", st.BaseStations.ToString(CultureInfo.InvariantCulture), st.BaseStations >= 2 ? Ok : Warn, st.BaseStations >= 2);
+            fs == "unbekannt" ? "unbekannt" : fs == "aus" ? "ok" : "warn");
+        if (st is null)
+        {
+            if (alt) Add("Web-Schnittstelle", _remoteError!, "unbekannt");
+            return;
+        }
+        Add("Timecode-Eingang", st.TimecodeEnabled ? $"an · {st.Timecode}" : "kein Signal", Bewertet(st.TimecodeEnabled));
+        Add("Genlock", st.GenlockEnabled ? "synchron" : "aus", Bewertet(st.GenlockEnabled));
+        Add("Basisstationen online", st.BaseStations.ToString(CultureInfo.InvariantCulture), Bewertet(st.BaseStations >= 2));
         foreach (var r in st.Rovers)
-            Add($"Rover {r.RoverNumber}", r.StateText, r.PoseValid ? Ok : Warn, r.PoseValid);
-    }
-
-    static void SetLamp(System.Windows.Shapes.Ellipse e, Brush b, bool filled)
-    {
-        e.Stroke = b;
-        e.Fill = filled ? b : Brushes.Transparent;
+            Add($"Rover {r.RoverNumber}", r.StateText, Bewertet(r.PoseValid));
     }
 
     void UpdateDevices(MarsFrame f, bool connected)
@@ -378,21 +387,21 @@ public partial class MainWindow : Window
                 double drift = (_takeMonitor ?? _live).BaseStationDriftMm(d.Serial);
                 bool ruhig = drift < 2;
                 row.Info = string.Format(CultureInfo.InvariantCulture, "Drift {0:F1} mm", drift);
-                row.InfoBrush = ruhig ? Grau : Warn;
+                row.InfoBrush = ruhig ? Leise : Warn;
                 row.State = !connected ? "letzter Stand" : ruhig ? "steht fest" : "verschoben – Kartensprung?";
-                row.Lamp(connected ? (ruhig ? Ok : Warn) : Grau, filled: ruhig || !connected);
+                row.Art = !connected ? "unbekannt" : ruhig ? "ok" : "warn";
             }
             else
             {
                 row.Info = "";
                 row.State = connected ? "wird verfolgt" : "letzter Stand";
-                row.Lamp(connected ? Ok : Grau, filled: true);
+                row.Art = connected ? "ok" : "unbekannt";
             }
         }
         foreach (var r in _devices.Where(r => !seen.Contains(r.Serial)))
         {
             r.State = "fehlt im Datenstrom";
-            r.Lamp(Warn, filled: false);
+            r.Art = "warn";
         }
     }
 
@@ -400,7 +409,63 @@ public partial class MainWindow : Window
 
     void OnRec(object sender, RoutedEventArgs e)
     {
-        if (_recorder is null) { _stageTake = null; StartTake("Hand"); } else StopTake();
+        if (_haltenGestoppt) { _haltenGestoppt = false; return; }   // Loslassen nach dem Halten startet nichts Neues
+        if (_recorder is null) { _stageTake = null; StartTake("Hand"); return; }
+        if (!_halten.IsEnabled) HaltenHinweis();
+    }
+
+    void OnRecDown(object sender, System.Windows.Input.MouseButtonEventArgs e) { _haltenGestoppt = false; HaltenStart(); }
+    void OnRecUp(object sender, System.Windows.Input.MouseButtonEventArgs e) => HaltenAbbrechen();
+    void OnRecLeave(object sender, System.Windows.Input.MouseEventArgs e) => HaltenAbbrechen();
+
+    void OnRecKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key is not (System.Windows.Input.Key.Space or System.Windows.Input.Key.Enter)) return;
+        if (e.IsRepeat) { if (_recorder is not null) e.Handled = true; return; }
+        _haltenGestoppt = false;
+        if (_recorder is null) return;   // Starten bleibt ein Tipp
+        HaltenStart();
+        e.Handled = true;                // Enter würde sonst sofort klicken
+    }
+
+    void OnRecKeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key is not (System.Windows.Input.Key.Space or System.Windows.Input.Key.Enter) || !_halten.IsEnabled) return;
+        HaltenAbbrechen();
+        e.Handled = true;
+    }
+
+    void HaltenStart()
+    {
+        if (_recorder is null || _halten.IsEnabled) return;
+        _haltenUhr.Restart();
+        _halten.Start();
+    }
+
+    void HaltenTick()
+    {
+        double p = _haltenUhr.Elapsed.TotalSeconds / HaltenSek;
+        RecButton.Tag = Math.Min(1.0, p);
+        if (p < 1) return;
+        _halten.Stop();
+        RecButton.Tag = 0.0;
+        _haltenGestoppt = true;
+        if (_recorder is not null) StopTake();
+    }
+
+    void HaltenAbbrechen()
+    {
+        if (!_halten.IsEnabled) return;
+        _halten.Stop();
+        RecButton.Tag = 0.0;
+        HaltenHinweis();
+    }
+
+    void HaltenHinweis()
+    {
+        if (_recorder is null) return;
+        TakeStatus.Text = "Zum Stoppen 0,6 s gedrückt halten";
+        TakeStatus.Foreground = Theme.Get("Text2");
     }
 
     void StartTake(string ausloeser)
@@ -434,10 +499,11 @@ public partial class MainWindow : Window
         _takeStartLokal = DateTime.Now;
         _events.Clear();
         _shownEvents = 0;
-        RecText.Text = "Aufnahme stoppen";
-        RecButton.Background = RecButton.BorderBrush = Theme.Get("RotFlaeche");
-        // Auf rot-flaeche bleibt die Schrift weiss (Tag und Nacht ≥ 6:1)
-        RecText.Foreground = RecDot.Fill = Brushes.White;
+        RecText.Text = "Aufnahme stoppen · halten";
+        RecButton.SetResourceReference(BackgroundProperty, "RotFlaeche");
+        RecButton.SetResourceReference(BorderBrushProperty, "RotFlaeche");
+        RecText.SetResourceReference(System.Windows.Controls.TextBlock.ForegroundProperty, "AufRot");
+        RecDot.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "AufRot");
         TakeStatus.Text = ausloeser == "Klappe" ? $"gestartet von der Klappe · Stage-Take {_stageTake?.Id}" : " ";
         TakeBox.IsEnabled = FolderBox.IsEnabled = FolderButton.IsEnabled = IpBox.IsEnabled = ReconnectButton.IsEnabled = false;
         _settings.Folder = folder;
@@ -459,8 +525,10 @@ public partial class MainWindow : Window
         RecText.Text = "Aufnahme starten";
         RecButton.ClearValue(BackgroundProperty);
         RecButton.ClearValue(BorderBrushProperty);
-        RecText.SetResourceReference(System.Windows.Controls.TextBlock.ForegroundProperty, "AufBlau");
-        RecDot.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "AufBlau");
+        _halten.Stop();
+        RecButton.Tag = 0.0;
+        RecText.SetResourceReference(System.Windows.Controls.TextBlock.ForegroundProperty, "AufAkzent");
+        RecDot.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "AufAkzent");
         TakeBox.IsEnabled = FolderBox.IsEnabled = FolderButton.IsEnabled = IpBox.IsEnabled = ReconnectButton.IsEnabled = true;
         UpdateMarsRows();
 
@@ -534,7 +602,8 @@ public partial class MainWindow : Window
     }
 }
 
-public sealed record StatusRow(string Name, string Value, Brush LampStroke, Brush LampFill);
+/// <summary>Zeile im Mars-Block; Art = Zeichen (ok, warn, unbekannt).</summary>
+public sealed record StatusRow(string Name, string Value, string Art, Brush ValueBrush);
 
 /// <summary>Ereignis aus dem Monitor, „[hh:mm:ss:ff] Text" getrennt in Timecode und Satz.</summary>
 public sealed record EventRow(string Tc, string Text)
@@ -549,19 +618,17 @@ public sealed record EventRow(string Tc, string Text)
 public sealed class DeviceRow : INotifyPropertyChanged
 {
     string _name = "", _position = "", _info = "", _state = "";
-    Brush _fill = Brushes.Transparent, _stroke = Brushes.Gray, _infoBrush = Brushes.Gray;
+    string _art = "unbekannt";
+    Brush _infoBrush = Brushes.Gray;
     public string Serial { get; init; } = "";
     public bool IsBase { get; set; }
     public string Name { get => _name; set => Set(ref _name, value); }
     public string Position { get => _position; set => Set(ref _position, value); }
     public string Info { get => _info; set => Set(ref _info, value); }
     public string State { get => _state; set => Set(ref _state, value); }
-    public Brush LampFill { get => _fill; set => Set(ref _fill, value); }
-    public Brush LampStroke { get => _stroke; set => Set(ref _stroke, value); }
+    /// <summary>Zeichen: ok = verfolgt/steht fest, warn = Störung, unbekannt = letzter Stand.</summary>
+    public string Art { get => _art; set => Set(ref _art, value); }
     public Brush InfoBrush { get => _infoBrush; set => Set(ref _infoBrush, value); }
-
-    /// <summary>Gefüllter Punkt = in Ordnung bzw. letzter Stand, leerer Ring = Störung.</summary>
-    public void Lamp(Brush b, bool filled) { LampStroke = b; LampFill = filled ? b : Brushes.Transparent; }
 
     public event PropertyChangedEventHandler? PropertyChanged;
     void Set<T>(ref T field, T value, [CallerMemberName] string? name = null)

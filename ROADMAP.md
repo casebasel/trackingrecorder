@@ -67,6 +67,10 @@ Was daraus folgt:
 - [x] WPF-Oberfläche `TrackingRecorderApp.exe` (v0.3.0, Design von syncomat, `DESIGN.md`): Lage, Timecode-Tafel,
   Geräte mit Drift, Mars-Zustand (Timecode-Eingang, Genlock, Basisstationen, Rover) aus Web-Schnittstelle :7008,
   Ereignisse, Take/Speicherort/Aufnahme; Take-Zusammenfassung als JSON. Prüfbild: `--bild <png> [--hell|--dunkel] [--rec]`
+- [x] **Familie Set-Apps** (v0.7.0, Marlon 15.11.2026 über stage-system): Gestalt wie Stage Ingest (Kopf 44 px, Blöcke,
+  Akzent nachts Bernstein / tags Blau), Zeichen ok/warn/unbekannt/rec, **Stoppen nur durch 0,6 s Halten**, Logo
+  `assets/icon.svg`. Offen: Prüfbilder hell/dunkel auf .3 an stage-system, Programm-Icon (.ico) für Fenster und Installer
+- [ ] Mars-Web-Zeitlimit: in v0.6.2 auf 15 s gesetzt — im Studio prüfen, ob „antwortet nicht" verschwindet
 - [x] Rover 1 meldet seit 11.11. wieder Zustand 5 (mit Objektiv-Encoder)
 - [ ] Mars-Web-Schnittstelle antwortet zeitweise erst nach 4–6 s → Zeitlimit von 4 s auf ~15 s (App zeigt sonst „antwortet nicht")
 - [ ] `StartTimecode` in der Take-JSON zählt den Vorlauf nicht mit → erstes Bild der Datei als Start, Vorlauf getrennt angeben

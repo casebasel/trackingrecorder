@@ -5,33 +5,43 @@ using Microsoft.Win32;
 namespace TrackingRecorder.App;
 
 /// <summary>
-/// Farben hell/dunkel nach der Windows-Einstellung „App-Modus". Werte: syncomat src/App.css v0.9.39 (sRGB),
-/// Signalregeln aus stage-system DESIGN-GEMEINSAM.md: Rot nur für laufende Aufnahme, Gold für Störung, Grün für ok.
+/// Farben nach Design System „Filmstudio Stage", Familie Set-Apps (wie Stage Ingest; Marlon 15.11.2026):
+/// Graphit-Flächen, Akzent nachts Bernstein und tags Blau, Grün für bereit/verbunden/bewiesen,
+/// Gold nur für Störung, Rot nur für laufende Aufnahme. Werte = tokens.json (OKLCH) in sRGB.
+/// Nacht = Windows dunkel, Tag = Windows hell.
 /// </summary>
 public static class Theme
 {
-    static readonly (string Key, string Hell, string Dunkel)[] Werte =
+    static readonly (string Key, string Tag, string Nacht)[] Werte =
     {
-        ("Grund",      "#FFFFFF", "#0E0F12"),
-        ("Flaeche",    "#F4F5F7", "#17191D"),
-        ("Linie",      "#D9DCE1", "#2A2D33"),
-        ("LinieFein",  "#ECEEF1", "#1E2126"),
-        ("Text",       "#111317", "#ECEEF1"),
-        ("Text2",      "#5B616B", "#9AA1AC"),
-        ("Kopf",       "#111317", "#000000"),
-        ("KopfText",   "#FFFFFF", "#FFFFFF"),
-        ("KopfText2",  "#B8BEC8", "#9AA1AC"),
-        ("Blau",       "#2867E4", "#568EF9"),
-        ("AufBlau",    "#FFFFFF", "#0E0F12"),   // Text auf der blauen Handlung: nachts dunkel (6,1:1), DESIGN-GEMEINSAM 9fc08ec
-        ("BlauFlaeche","#E4EFFF", "#162644"),
-        ("Warn",       "#895200", "#F3B94C"),
-        ("WarnAufKopf","#F3B94C", "#F3B94C"),
-        ("Rot",        "#AC1922", "#FA706A"),
-        ("RotFlaeche", "#B3232B", "#A8282A"),   // DESIGN-GEMEINSAM rot-flaeche (Tag/Nacht), Weiss darauf ≥ 6:1
-        ("Ok",         "#006E30", "#61CB7C"),
+        ("Fenster",      "#D6D8DA", "#0A0B0D"),
+        ("Panel",        "#F6F7F8", "#131416"),
+        ("Panel2",       "#E8EAEC", "#181A1C"),
+        ("Feld",         "#FFFFFF", "#08090B"),
+        ("Hover",        "#E0E3E7", "#1D1F22"),
+        ("Linie",        "#C1C4C8", "#292B2E"),
+        ("LinieStark",   "#73787D", "#63666B"),
+        ("Text",         "#111418", "#EAEBED"),
+        ("Text2",        "#2F3338", "#C1C4C8"),
+        ("Text3",        "#494D53", "#A9ADB1"),
+        ("TextAus",      "#717579", "#717579"),
+        ("Akzent",       "#0961BB", "#E09036"),
+        ("AkzentHover",  "#0052AB", "#F1A048"),
+        ("AkzentText",   "#0052AB", "#F3AE58"),
+        ("AufAkzent",    "#FCFCFC", "#0E0A07"),
+        ("Auswahl",      "#BBD7F8", "#4A2E10"),
+        ("Ok",           "#006E30", "#61CB7C"),
+        ("Warn",         "#895200", "#F3B94C"),
+        ("Rot",          "#AC1922", "#FA706A"),
+        ("RotFlaeche",   "#B71824", "#A90017"),
+        ("RotFlaecheGedrueckt", "#A50013", "#970003"),
+        ("AufRot",       "#FCFCFC", "#FCFCFC"),
     };
 
     public static bool Dunkel { get; private set; }
+
+    /// <summary>Nach jedem Wechsel (Zeichen zeichnen sich neu).</summary>
+    public static event Action? Geaendert;
 
     public static void Apply() => Apply(null);
 
@@ -40,12 +50,18 @@ public static class Theme
     {
         Dunkel = erzwingen ?? SystemIsDark();
         var res = Application.Current.Resources;
-        foreach (var (key, hell, dunkel) in Werte)
+        foreach (var (key, tag, nacht) in Werte)
         {
-            var brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Dunkel ? dunkel : hell));
+            var brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Dunkel ? nacht : tag));
             brush.Freeze();
             res[key] = brush;
         }
+        // schatten-taste: einziger Schatten, 1-px-Kontaktschatten normaler Tasten
+        var schatten = new System.Windows.Media.Effects.DropShadowEffect
+            { BlurRadius = 2, ShadowDepth = 1, Direction = 270, Color = Colors.Black, Opacity = Dunkel ? 0.35 : 0.12 };
+        schatten.Freeze();
+        res["SchattenTaste"] = schatten;
+        Geaendert?.Invoke();
     }
 
     public static void Follow()

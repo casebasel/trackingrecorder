@@ -1,11 +1,29 @@
 <Application x:Class="TrackingRecorder.App.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <!-- Gestalt von syncomat („Das ruhige Formular"), Werte aus syncomat src/App.css v0.9.39.
-         Farben liegen als Brushes in Theme.cs (hell/dunkel nach Windows), hier nur DynamicResource. -->
+    <!-- Design System „Filmstudio Stage", Familie Set-Apps (Gestalt wie Stage Ingest).
+         Farben liegen als Brushes in Theme.cs (Tag/Nacht nach Windows), hier nur DynamicResource. -->
     <Application.Resources>
         <FontFamily x:Key="Sans">Segoe UI Variable Text, Segoe UI</FontFamily>
         <FontFamily x:Key="Mono">Cascadia Mono, Consolas</FontFamily>
+
+        <!-- Logo (assets/icon.svg): Graphit-Kachel, Bildrahmen, Kamerabahn in Bernstein -->
+        <DrawingImage x:Key="Logo">
+            <DrawingImage.Drawing>
+                <DrawingGroup>
+                    <GeometryDrawing Brush="#0F1114" Geometry="M112,0 H400 A112,112 0 0 1 512,112 V400 A112,112 0 0 1 400,512 H112 A112,112 0 0 1 0,400 V112 A112,112 0 0 1 112,0 Z"/>
+                    <GeometryDrawing Geometry="M112,176 V136 Q112,112 136,112 H176 M336,112 H376 Q400,112 400,136 V176 M400,336 V376 Q400,400 376,400 H336 M176,400 H136 Q112,400 112,376 V336">
+                        <GeometryDrawing.Pen><Pen Brush="#C9CCD1" Thickness="22" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+                    </GeometryDrawing>
+                    <GeometryDrawing Geometry="M168,330 C214,330 222,214 270,214 S324,270 344,214">
+                        <GeometryDrawing.Pen><Pen Brush="#E08A3C" Thickness="30" StartLineCap="Round" EndLineCap="Round"/></GeometryDrawing.Pen>
+                    </GeometryDrawing>
+                    <GeometryDrawing Brush="#E08A3C">
+                        <GeometryDrawing.Geometry><EllipseGeometry Center="168,330" RadiusX="22" RadiusY="22"/></GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                </DrawingGroup>
+            </DrawingImage.Drawing>
+        </DrawingImage>
 
         <Style TargetType="TextBlock">
             <Setter Property="FontFamily" Value="{StaticResource Sans}"/>
@@ -17,47 +35,80 @@
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Foreground" Value="{DynamicResource Text2}"/>
         </Style>
-        <Style x:Key="Gruppe" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="FontWeight" Value="Bold"/>
+        <Style x:Key="Leise" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="{DynamicResource Text3}"/>
         </Style>
         <Style x:Key="Zahl" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
             <Setter Property="FontFamily" Value="{StaticResource Mono}"/>
             <Setter Property="FontSize" Value="12"/>
         </Style>
 
-        <!-- Fokus: 2 px Ring in Blau, überall -->
+        <!-- Block (wie .block im Ingest): Panel, 1 px Linie, Radius 6 -->
+        <Style x:Key="Block" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource Panel}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Linie}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="6"/>
+        </Style>
+        <!-- Block-Kopf: min. 40 px, Panel-2, Titel 13 fett -->
+        <Style x:Key="BlockKopf" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource Panel2}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Linie}"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="CornerRadius" Value="5,5,0,0"/>
+            <Setter Property="MinHeight" Value="40"/>
+            <Setter Property="Padding" Value="14,0"/>
+        </Style>
+        <Style x:Key="BlockTitel" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="Zeile" TargetType="Border">
+            <Setter Property="BorderBrush" Value="{DynamicResource Linie}"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="Padding" Value="14,0"/>
+        </Style>
+
+        <!-- Fokus: 2 px Ring im Akzent -->
         <Style x:Key="Fokus">
             <Setter Property="Control.Template">
                 <Setter.Value>
                     <ControlTemplate>
-                        <Border BorderBrush="{DynamicResource Blau}" BorderThickness="2" CornerRadius="7" Margin="-3"/>
+                        <Border BorderBrush="{DynamicResource Akzent}" BorderThickness="2" CornerRadius="6" Margin="-3"/>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
 
-        <!-- Nebenknopf: 1 px Linie, Grund, Hover Fläche -->
+        <!-- Knopf (.knopf): 28 px, Panel-2, Rand linie-stark, Radius 4, Gewicht 500 -->
         <Style TargetType="Button">
             <Setter Property="FontFamily" Value="{StaticResource Sans}"/>
             <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="Medium"/>
             <Setter Property="Foreground" Value="{DynamicResource Text}"/>
-            <Setter Property="Background" Value="{DynamicResource Grund}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource Linie}"/>
-            <Setter Property="Height" Value="30"/>
+            <Setter Property="Background" Value="{DynamicResource Panel2}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource LinieStark}"/>
+            <Setter Property="Height" Value="28"/>
             <Setter Property="Padding" Value="12,0"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Tag" Value="0.0"/>
             <Setter Property="FocusVisualStyle" Value="{StaticResource Fokus}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="B" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="1" CornerRadius="6" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
+                        <Grid>
+                            <!-- Schatten auf eigener Fläche: ein Effekt auf dem Inhalt würde ClearType abschalten -->
+                            <Border Background="{TemplateBinding Background}" CornerRadius="4" Effect="{DynamicResource SchattenTaste}"/>
+                            <Border x:Name="B" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="1" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="B" Property="Background" Value="{DynamicResource Flaeche}"/>
+                                <Setter TargetName="B" Property="Background" Value="{DynamicResource Hover}"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="B" Property="Opacity" Value="0.45"/>
@@ -68,24 +119,37 @@
             </Setter>
         </Style>
 
-        <!-- Hauptknopf: die eine Handlung. Blau = Aufnahme starten; während der Aufnahme rot-flaeche = Stopp. -->
+        <!-- Hauptknopf gross (.knopf-haupt .knopf-gross): 38 px, Akzent, Radius 6, 14 px 600.
+             Während der Aufnahme setzt der Code rot-flaeche; Tag (0…1) = Füllung beim Halten zum Stoppen. -->
         <Style x:Key="Haupt" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-            <Setter Property="Background" Value="{DynamicResource Blau}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource Blau}"/>
-            <Setter Property="Foreground" Value="{DynamicResource AufBlau}"/>
+            <Setter Property="Background" Value="{DynamicResource Akzent}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Akzent}"/>
+            <Setter Property="Foreground" Value="{DynamicResource AufAkzent}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Height" Value="40"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Height" Value="38"/>
             <Setter Property="Padding" Value="20,0"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
+                        <Grid>
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6" Effect="{DynamicResource SchattenTaste}"/>
                         <Border x:Name="B" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="1" CornerRadius="6" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                BorderThickness="1" CornerRadius="6" ClipToBounds="True">
+                            <Grid>
+                                <Border x:Name="Fuellung" Background="{DynamicResource RotFlaecheGedrueckt}" CornerRadius="5"
+                                        HorizontalAlignment="Stretch" RenderTransformOrigin="0,0.5">
+                                    <Border.RenderTransform>
+                                        <ScaleTransform ScaleX="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}, FallbackValue=0}"/>
+                                    </Border.RenderTransform>
+                                </Border>
+                                <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Grid>
                         </Border>
+                        </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="B" Property="Opacity" Value="0.9"/>
+                                <Setter TargetName="B" Property="Opacity" Value="0.92"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="B" Property="Opacity" Value="0.45"/>
@@ -96,32 +160,31 @@
             </Setter>
         </Style>
 
-        <!-- Eingabe: 30 px, Fläche, 1 px Linie, Fokus Rand Blau -->
+        <!-- Eingabe: 28 px, Feld, 1 px Linie, Radius 4, Fokus Rand Akzent -->
         <Style TargetType="TextBox">
             <Setter Property="FontFamily" Value="{StaticResource Sans}"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="Foreground" Value="{DynamicResource Text}"/>
-            <Setter Property="Background" Value="{DynamicResource Flaeche}"/>
+            <Setter Property="Background" Value="{DynamicResource Feld}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource Linie}"/>
             <Setter Property="CaretBrush" Value="{DynamicResource Text}"/>
-            <Setter Property="SelectionBrush" Value="{DynamicResource Blau}"/>
-            <Setter Property="Height" Value="30"/>
+            <Setter Property="SelectionBrush" Value="{DynamicResource Akzent}"/>
+            <Setter Property="Height" Value="28"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
                         <Border x:Name="B" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="1" CornerRadius="6" Padding="8,0">
+                                BorderThickness="1" CornerRadius="4" Padding="8,0">
                             <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsKeyboardFocused" Value="True">
-                                <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource Blau}"/>
-                                <Setter TargetName="B" Property="BorderThickness" Value="2"/>
+                                <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource Akzent}"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="B" Property="Opacity" Value="0.55"/>
+                                <Setter TargetName="B" Property="Opacity" Value="0.45"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -129,18 +192,44 @@
             </Setter>
         </Style>
 
+        <!-- Kontrollkästchen: 16 px, Feld, Rand linie-stark, Radius 4; an = Akzent mit Haken auf-akzent -->
         <Style TargetType="CheckBox">
             <Setter Property="FontFamily" Value="{StaticResource Sans}"/>
+            <Setter Property="FontSize" Value="13"/>
             <Setter Property="Foreground" Value="{DynamicResource Text}"/>
             <Setter Property="FocusVisualStyle" Value="{StaticResource Fokus}"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <StackPanel Orientation="Horizontal" Background="Transparent">
+                            <Border x:Name="Box" Width="16" Height="16" CornerRadius="4" BorderThickness="1"
+                                    Background="{DynamicResource Feld}" BorderBrush="{DynamicResource LinieStark}" VerticalAlignment="Center">
+                                <Path x:Name="Haken" Data="M3.5,8.2 L6.6,11.2 L12.4,4.8" Stroke="{DynamicResource AufAkzent}" StrokeThickness="1.8"
+                                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Visibility="Collapsed"/>
+                            </Border>
+                            <ContentPresenter Margin="8,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Box" Property="Background" Value="{DynamicResource Akzent}"/>
+                                <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Akzent}"/>
+                                <Setter TargetName="Haken" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <Style TargetType="ToolTip">
             <Setter Property="FontFamily" Value="{StaticResource Sans}"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Foreground" Value="{DynamicResource Text}"/>
-            <Setter Property="Background" Value="{DynamicResource Grund}"/>
+            <Setter Property="Background" Value="{DynamicResource Panel}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource Linie}"/>
         </Style>
     </Application.Resources>

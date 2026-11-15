@@ -1,45 +1,51 @@
 # Design: TrackingRecorder
 
-**Massgebend ist das Design System „Filmstudio Stage“** (Marlon 15.11.2026): https://claude.ai/artifact/DLVnnCHU46neKXpxK6adYK —
+**Massgebend ist das Design System „Filmstudio Stage“**: https://claude.ai/artifact/DLVnnCHU46neKXpxK6adYK —
 vor jeder UI-Arbeit `project/README.md` und `project/tokens.json` lesen (Artifact-Tool, action read mit path).
-TrackingRecorder gehört zur Familie **Datenzentrale** (`zentrale-*`-Tokens). Neue gemeinsame Regeln nur über
-stage-system `DESIGN-GEMEINSAM.md`; Widersprüche an stage-system melden, nie selbst im Artefakt ändern.
-Diese Datei hält nur noch die Abweichungen und den Stand der Umsetzung in WPF.
+TrackingRecorder gehört seit 15.11.2026 (Entscheid Marlon, über stage-system) zur Familie **Set-Apps**:
+dieselbe Gestalt wie **Stage Ingest** (führende App der Aufnahme), Akzent nachts Bernstein, tags Blau.
+Neue gemeinsame Regeln nur über stage-system; Widersprüche an stage-system melden, nie selbst im Artefakt ändern.
+Diese Datei hält die Abweichungen und den Stand der Umsetzung in WPF (`Theme.cs`, `App.xaml`, `Zeichen.cs`, `MainWindow.xaml`).
 
-Übernimmt die Gestalt von **syncomat** („Das ruhige Formular", `casebasel/syncomat` DESIGN.md) mit den
-Signalregeln aus `stage-system/DESIGN-GEMEINSAM.md`. Werte am 10.11.2026 von der syncomat-Session als sRGB
-geliefert (Quelle syncomat `src/App.css` v0.9.39). Umsetzung: `src/TrackingRecorder.App/Theme.cs`, `App.xaml`.
+## Gestalt (wie Stage Ingest)
 
-## Grundsätze
+- **Kopf 44 px** in `panel-2` mit Linie unten: Logo, Name 14 px fett, Version Mono 11 px `text-3`;
+  rechts Bilder/s · Geräte, Störung als Gold-Zeichen mit Wort.
+- **Blöcke** (`panel`, 1 px `linie`, Radius 6) mit **Block-Kopf** (min. 40 px, `panel-2`, Titel 13 px fett, Zahl `text-3`):
+  Lage, Geräte, Mars, Ereignisse. Zeilen mit 1 px `linie`, 46 px (Geräte) bzw. 32 px (Mars).
+- Lage in einem Satz (20 px fett) mit Zeichen, darunter eine Zeile Einzelheiten.
+- **Timecode als Tafel** (Cascadia Mono 44 px) — erlaubte Abweichung.
+- Unten die Aufnahme (`panel`), darunter die Statusleiste (`panel-2`, 30 px).
+- Tag und Nacht nach Windows-Einstellung, live umschaltend. Schrift Segoe UI Variable Text / Segoe UI,
+  Mono (Cascadia Mono) nur für Zahlen, Serien, Pfade, Timecode; Tabellenziffern überall.
 
-- Flach, Haarlinien statt Schatten, schwarze Kopfzeile (48 px): Titel links, zwei Zahlen rechts (Bilder/s · Geräte),
-  Störung als Gold-Zusatz.
-- Lage in einem Satz (22 px fett) mit Lampe, darunter eine Zeile Einzelheiten.
-- **Timecode als Tafel** (Cascadia Mono 44 px): erlaubte Abweichung „Klappe/Leitstand" aus DESIGN-GEMEINSAM.
-- Tabellenzeilen 44 px (Geräte) bzw. 34 px (Mars), Trenner `linie-fein`, Gruppenkopf 13 px fett + Zahl in `text2`.
-- Hell und Dunkel nach Windows-Einstellung, live umschaltend.
-- Schrift: Segoe UI Variable Text / Segoe UI; Mono (Cascadia Mono, Consolas) nur für Zahlen, Serien, Pfade, Timecode;
-  Tabellenziffern überall.
+## Farben
 
-## Farben (hell | dunkel)
+Set-App-Tokens aus `tokens.json` (OKLCH → sRGB) in `Theme.cs`: fenster, panel, panel-2, feld, hover, linie, linie-stark,
+text, text-2, text-3, text-aus, akzent, akzent-hover, akzent-text, auf-akzent, auswahl, ok, warn, rot, rot-flaeche,
+rot-flaeche-gedrueckt, auf-rot. Das Blau der Datenzentrale samt `auf-blau` ist entfallen.
 
-grund #FFFFFF | #0E0F12 · flaeche #F4F5F7 | #17191D · linie #D9DCE1 | #2A2D33 · linie-fein #ECEEF1 | #1E2126 ·
-text #111317 | #ECEEF1 · text2 #5B616B | #9AA1AC · kopf #111317 | #000000 · blau #2867E4 | #568EF9 ·
-warn #895200 | #F3B94C (auf Kopf immer #F3B94C) · rot #AC1922 | #FA706A · rot-flaeche #B3232B | #A8282A ·
-ok #006E30 | #61CB7C · auf-blau #FFFFFF | #0E0F12
+## Zeichen (Lampen) — Form trägt den Zustand, das Wort steht immer daneben
 
-## Signalregeln
-
-- **Rot nur für die laufende Aufnahme** (Lampe, Stopp-Knopf in `rot-flaeche`). Nie für Störungen.
-- **Gold** für jede Störung (fehlende Bilder, Sprung, Kartensprung, Basisstation verschoben, kein Signal). Sperrt nichts.
-- **Grün** für verbunden / Pose gültig / Genlock synchron.
-- **Grau gefüllt** = letzter Stand (keine frischen Daten).
-- Form trägt den Zustand: gefüllter Punkt = in Ordnung bzw. letzter Stand, leerer Ring = Störung, Gold-Strich = Ereignis.
-  Das Wort steht immer daneben.
-- **Blau** nur für die eine Handlung: „Aufnahme starten". Schrift darauf: Tag Weiss, **Nacht #0E0F12** (6,1:1;
-  Weiss hatte nur 3,2:1 — DESIGN-GEMEINSAM 9fc08ec, Marlon 15.11.2026). Auf rot-flaeche (Stopp) bleibt sie Weiss.
+| Art | Form | Farbe | Wofür |
+|---|---|---|---|
+| ok | Kreis mit Haken | `ok` (Grün) | bereit, verbunden, Pose gültig, Genlock, Filter aus, Station steht fest |
+| warn | Dreieck mit Ausrufezeichen | `warn` (Gold) | jede Störung; sperrt nichts |
+| unbekannt | gestrichelter Ring | `linie-stark`, Wort `text-3`, **kein Gold** | Mars-Filter unbekannt, Web antwortet nicht (letzter Stand), keine frischen Daten |
+| rec | gefüllter Punkt | `rot` | nur laufende Aufnahme |
 
 ## Knöpfe und Felder
 
-Haupt 40 px, Radius 6, gefüllt; Neben 30 px, 1 px `linie`, Hover `flaeche`; Eingabe 30 px, `flaeche`, Fokus Rand Blau 2 px.
-Fokusring überall 2 px Blau. Gesperrt 45 % Deckkraft.
+- Knopf 28 px, Padding 0 12, Rand `linie-stark`, Radius 4, `panel-2`, Gewicht 500, Kontaktschatten (`schatten-taste`,
+  auf eigener Fläche hinter dem Inhalt, damit ClearType bleibt). Hover `hover`. Gesperrt 45 %.
+- Hauptknopf gross 38 px, Padding 0 20, 14 px 600, Radius 6: **„Aufnahme starten“ in `akzent` / `auf-akzent`** (ein Tipp).
+- **Während der Aufnahme: `rot-flaeche` / `auf-rot`, „Aufnahme stoppen · halten“. Stoppen nur durch 0,6 s Halten**
+  (Maus, Leertaste oder Enter); die Füllung läuft von links in `rot-flaeche-gedrueckt`. Kurzes Tippen stoppt nicht und
+  zeigt „Zum Stoppen 0,6 s gedrückt halten“. Klappe (Cut) stoppt wie bisher ohne Halten.
+- Eingabe 28 px, `feld`, 1 px `linie`, Radius 4, Fokus Rand `akzent`. Kontrollkästchen 16 px, an = `akzent` mit Haken `auf-akzent`.
+- Fokusring überall 2 px `akzent`.
+
+## Logo
+
+`assets/icon.svg` (im Fenster als `DrawingImage` „Logo“ in `App.xaml`): Graphit-Kachel #0f1114, Bildrahmen-Ecken
+in Hellgrau #c9ccd1, Kamerabahn mit Startpunkt in Bernstein #e08a3c — Stil Stage Ingest / Plate Assistant.

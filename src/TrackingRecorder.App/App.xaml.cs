@@ -54,7 +54,7 @@ public partial class App : Application
             timer.Stop();
             File.WriteAllText(Path.ChangeExtension(path, ".txt"), $"Web-Zustand nach {(w.HasMarsStatus ? (readyAt >= 1000 ? readyAt - 1000 : readyAt).ToString("F1") : "—")} s");
             var size = new Size(w.Width, w.Height);
-            var host = new System.Windows.Controls.Border { Background = Theme.Get("Grund"), Width = size.Width, Height = size.Height };
+            var host = new System.Windows.Controls.Border { Background = Theme.Get("Fenster"), Width = size.Width, Height = size.Height };
             w.Content = null;
             host.Child = root;
             host.Measure(size); host.Arrange(new Rect(size)); host.UpdateLayout();
