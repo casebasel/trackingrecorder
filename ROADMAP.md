@@ -92,7 +92,10 @@ Was daraus folgt:
   Path Recorder: TCHour…TCFrame) **und** Nuke-Kamera (.chan, Bild 1 = Clip-Start), beide auf den Clip zugeschnitten
 - [ ] Nuke-Kamera im Unreal-Nullpunkt, damit Nuke-3D und Unreal-Renders zusammenpassen. Gegenprobe der Umrechnung mit
   Peter Mercell „Unreal-Camera-to-Nuke-converter" (MIT, nur Camera3) und dessen Beispieldateien
-- [ ] Export legt in `06_VFX_RENDER/<Datum>_<kurz>/` im Projekt-Abo ab (Marlon 12.11.); Rohdaten bleiben in `08_TRACKING`
+- [ ] Export legt in `06_VFX_RENDER/<Datum>_<kurz>/` im Projekt-Abo ab (Marlon 12.11.); Rohdaten bleiben in `08_TRACKING`.
+  Abo-Pfad **aus syncomat `status.json` (`abos[].path`) lesen, nicht zusammensetzen**; Kurzname gross wie in der `folder_id`.
+  Unter Windows liegen die Abos immer unter `D:\Projekte\<KURZNAME>\` (stage-system 16.11., SCHNITTSTELLEN „Ablage der Abos“).
+  Kein Abo fürs Projekt → nicht exportieren, sondern melden
 - [ ] Zeitversatz Mars ↔ Bild als Kalibrierwert (gemessen −2 Bilder / −80 ms) im Export anwenden
 - [ ] Versatz Tracker→Pupille und Root je Take vom Stage-Server übernehmen statt fest
 - [ ] Konvention für SCHNITTSTELLEN (stage-system) liefern: Achsen/Einheiten, Nullpunkt, Versatz, Start-TC, fps, Lens File
