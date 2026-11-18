@@ -143,31 +143,42 @@ def lade_fbx(pfad: str, modell: str | None = None, start_tc: str | None = None, 
 def lade_posen_jsonl(pfad: str) -> Spur:
     """Posen-Sicherung der Stage (data/posen/<takeId>.jsonl): rohe Live-Link-Pose von Rover 1, cm, pitch/yaw/roll,
     10 Hz. Unreal-FRotator: R = Rz(yaw)·Ry(pitch)·Rx(roll).
-    Zeit: ab Plugin 0.22.17 `poseTc` = Timecode des ausgewerteten Live-Link-Bilds selbst (Stage 18.11.2026);
-    ältere Sicherungen haben nur `marsTc` (jüngster Mars-TC beim Senden, streut ±0,65 s) — dann mit Warnung."""
+    Zeit (Stage 18.11.2026, Plugin 0.22.17): `poseSekunden` = Scene-Time des Live-Link-Bilds in s seit Mitternacht
+    MIT Unterbild (massgebend), `poseFps` dessen Rate, `poseTc` dasselbe auf ganze Bilder abgeschnitten (nur Kontrolle).
+    Ältere Sicherungen haben nur `marsTc` (jüngster Mars-TC beim Senden, streut ±0,65 s) — dann mit Warnung."""
     t, p, e = [], [], []
     fps = 25.0
-    alt = 0
+    alt = abweich = 0
     for line in open(pfad):
         j = json.loads(line)
         if j.get("art") == "kopf":
             fps = float(j.get("fps") or fps); continue
         k = j.get("kamera") or {}
-        tc = j.get("poseTc") or j.get("marsTc")
-        if not k.get("gueltig") or not tc:
+        if not k.get("gueltig"):
             continue
-        alt += not j.get("poseTc")
+        if j.get("poseSekunden") is not None:
+            fps = float(j.get("poseFps") or fps)
+            n = float(j["poseSekunden"]) * fps   # Bilder seit Mitternacht, mit Unterbild
+            if j.get("poseTc") and math.floor(n + 1e-6) != tc_frames(j["poseTc"], fps):
+                abweich += 1
+        elif j.get("marsTc"):
+            n = float(tc_frames(j["marsTc"], fps)); alt += 1
+        else:
+            continue
         po = k["pose"]
-        t.append(tc_frames(tc, fps)); p.append([po["x"], po["y"], po["z"]])
+        t.append(n); p.append([po["x"], po["y"], po["z"]])
         e.append([po["roll"], po["pitch"], po["yaw"]])
+    name = os.path.basename(pfad)
     if alt:
-        print(f"Warnung {os.path.basename(pfad)}: {alt} Zeilen ohne poseTc, Zeit aus marsTc (ungenau)", file=sys.stderr)
+        print(f"Warnung {name}: {alt} Zeilen ohne poseSekunden, Zeit aus marsTc (ungenau)", file=sys.stderr)
+    if abweich:
+        print(f"Warnung {name}: {abweich} Zeilen, in denen poseSekunden und poseTc nicht dasselbe Bild nennen", file=sys.stderr)
     t = np.array(t, float)
-    # mit poseTc: gleiche Bilder (10-Hz-Abtastung trifft dasselbe Live-Link-Bild zweimal) nur einmal, zeitlich sortiert;
+    # mit poseSekunden: dieselbe Pose doppelt (10-Hz-Abtastung trifft dasselbe Live-Link-Bild) nur einmal, sortiert;
     # alte Sicherungen (marsTc) unverändert lassen, dort wiederholt sich der TC ohne gleiches Bild
     idx = np.unique(t, return_index=True)[1] if not alt else np.arange(len(t))
     t = t[idx]
-    return Spur(t, np.array(p)[idx], R.from_euler("xyz", np.array(e)[idx], degrees=True), fps, os.path.basename(pfad))
+    return Spur(t, np.array(p)[idx], R.from_euler("xyz", np.array(e)[idx], degrees=True), fps, name)
 
 
 def lade(pfad: str, **kw) -> Spur:
