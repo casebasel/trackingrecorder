@@ -142,21 +142,30 @@ def lade_fbx(pfad: str, modell: str | None = None, start_tc: str | None = None, 
 
 def lade_posen_jsonl(pfad: str) -> Spur:
     """Posen-Sicherung der Stage (data/posen/<takeId>.jsonl): rohe Live-Link-Pose von Rover 1, cm, pitch/yaw/roll,
-    10 Hz, Feld marsTc. Unreal-FRotator: R = Rz(yaw)·Ry(pitch)·Rx(roll)."""
+    10 Hz. Unreal-FRotator: R = Rz(yaw)·Ry(pitch)·Rx(roll).
+    Zeit: ab Plugin 0.22.17 `poseTc` = Timecode des ausgewerteten Live-Link-Bilds selbst (Stage 18.11.2026);
+    ältere Sicherungen haben nur `marsTc` (jüngster Mars-TC beim Senden, streut ±0,65 s) — dann mit Warnung."""
     t, p, e = [], [], []
     fps = 25.0
+    alt = 0
     for line in open(pfad):
         j = json.loads(line)
         if j.get("art") == "kopf":
             fps = float(j.get("fps") or fps); continue
         k = j.get("kamera") or {}
-        if not k.get("gueltig") or not j.get("marsTc"):
+        tc = j.get("poseTc") or j.get("marsTc")
+        if not k.get("gueltig") or not tc:
             continue
+        alt += not j.get("poseTc")
         po = k["pose"]
-        t.append(tc_frames(j["marsTc"], fps)); p.append([po["x"], po["y"], po["z"]])
+        t.append(tc_frames(tc, fps)); p.append([po["x"], po["y"], po["z"]])
         e.append([po["roll"], po["pitch"], po["yaw"]])
+    if alt:
+        print(f"Warnung {os.path.basename(pfad)}: {alt} Zeilen ohne poseTc, Zeit aus marsTc (ungenau)", file=sys.stderr)
     t = np.array(t, float)
-    return Spur(t, np.array(p), R.from_euler("xyz", np.array(e), degrees=True), fps, os.path.basename(pfad))
+    # gleiche Bilder (10-Hz-Abtastung kann dasselbe Live-Link-Bild zweimal treffen) nur einmal, zeitlich sortiert
+    t, idx = np.unique(t, return_index=True)
+    return Spur(t, np.array(p)[idx], R.from_euler("xyz", np.array(e)[idx], degrees=True), fps, os.path.basename(pfad))
 
 
 def lade(pfad: str, **kw) -> Spur:

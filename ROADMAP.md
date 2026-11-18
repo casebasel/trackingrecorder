@@ -129,6 +129,9 @@ Projekt `06_VFX_RENDER/2026-11-12_tracking-test/`.
 - [ ] **Render-Vergleich** (Session Gaussian_to_Beeble, Kameras in `kameras/`): T04 mars + nuke, T03 unreal + mars, je Gitter
   und Set → in Nuke über die Clips legen, Rutschen sichtbar machen
 - [ ] Achsen-Take (A) und die Takes 1–6 der Prüfliste nachholen
+- [ ] **Stage-Plugin 0.22.17** (Stage 18.11.): Posen-Sicherung mit `poseTc` (TC des Live-Link-Bilds selbst, Werkzeuge lesen
+  es schon, `marsTc` nur noch Rückfall mit Warnung); Unreal-Aufnahme mit Rückfall auf das jüngste Mars-Bild. Nach Verteilung:
+  frischen Take mit schnellem Schwenk gegen Mars vergleichen (Zeitversatz, Streuung)
 - [ ] Ingest legte den Drehordner nach `2026-11-12_OHNE_DREHORT`, Tracking liegt in `2026-11-12_STUDIO` → in Ingest einsortieren
 - [ ] Root in Gaussian_to_Beeble auf Z 31,56: virtueller Boden ~30 cm unter dem echten — Entscheid Marlon (nach dem Test)
 
