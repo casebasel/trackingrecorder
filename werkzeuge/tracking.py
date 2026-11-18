@@ -163,8 +163,10 @@ def lade_posen_jsonl(pfad: str) -> Spur:
     if alt:
         print(f"Warnung {os.path.basename(pfad)}: {alt} Zeilen ohne poseTc, Zeit aus marsTc (ungenau)", file=sys.stderr)
     t = np.array(t, float)
-    # gleiche Bilder (10-Hz-Abtastung kann dasselbe Live-Link-Bild zweimal treffen) nur einmal, zeitlich sortiert
-    t, idx = np.unique(t, return_index=True)
+    # mit poseTc: gleiche Bilder (10-Hz-Abtastung trifft dasselbe Live-Link-Bild zweimal) nur einmal, zeitlich sortiert;
+    # alte Sicherungen (marsTc) unverändert lassen, dort wiederholt sich der TC ohne gleiches Bild
+    idx = np.unique(t, return_index=True)[1] if not alt else np.arange(len(t))
+    t = t[idx]
     return Spur(t, np.array(p)[idx], R.from_euler("xyz", np.array(e)[idx], degrees=True), fps, os.path.basename(pfad))
 
 
