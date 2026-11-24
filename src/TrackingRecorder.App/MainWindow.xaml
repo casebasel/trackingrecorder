@@ -206,15 +206,17 @@
         <Border Grid.Row="2" Background="{DynamicResource Panel}" BorderBrush="{DynamicResource Linie}" BorderThickness="0,1,0,0" Padding="16,12">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="240"/>
+                    <ColumnDefinition Width="2*" MinWidth="240" MaxWidth="420"/>
                     <ColumnDefinition Width="16"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="3*"/>
                     <ColumnDefinition Width="24"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel VerticalAlignment="Bottom">
                     <TextBlock Text="Take" Style="{StaticResource Zweit}" FontWeight="SemiBold" Margin="0,0,0,4"/>
-                    <TextBox x:Name="TakeBox" Text="Take_001" FontWeight="SemiBold"/>
+                    <!-- Stage-Namen sind lang (PROJEKT_Einstellung_Tnn): Feld wächst mit, voller Name im Tooltip (stage-system 24.11.) -->
+                    <TextBox x:Name="TakeBox" Text="Take_001" FontWeight="SemiBold"
+                             ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"/>
                 </StackPanel>
                 <StackPanel Grid.Column="2" VerticalAlignment="Bottom">
                     <TextBlock Text="Speicherort" Style="{StaticResource Zweit}" FontWeight="SemiBold" Margin="0,0,0,4"/>
