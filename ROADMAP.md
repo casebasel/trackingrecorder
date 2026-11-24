@@ -69,7 +69,8 @@ Was daraus folgt:
   Ereignisse, Take/Speicherort/Aufnahme; Take-Zusammenfassung als JSON. Prüfbild: `--bild <png> [--hell|--dunkel] [--rec]`
 - [x] **Familie Set-Apps** (v0.7.0, Marlon 15.11.2026 über stage-system): Gestalt wie Stage Ingest (Kopf 44 px, Blöcke,
   Akzent nachts Bernstein / tags Blau), Zeichen ok/warn/unbekannt/rec, **Stoppen nur durch 0,6 s Halten**, Logo
-  `assets/icon.svg`. Offen: Prüfbilder hell/dunkel auf .3 an stage-system, Programm-Icon (.ico) für Fenster und Installer
+  `assets/icon.svg`. Prüfbilder hell/dunkel 24.11. auf .3 (ohne Mars), veröffentlicht 24.11. Offen: Prüfbild mit laufender Aufnahme
+  (braucht Mars), Programm-Icon (.ico) für Fenster und Installer
 - [x] **Nächtliches Update** (v0.7.0, Marlon 15.11.2026): ein geladenes Update spielt sich zwischen 03 und 05 Uhr von
   selbst ein und startet die App neu — nur ohne Aufnahme, ohne laufenden Stage-Take, ohne offene NAS-Ablage und frühestens
   60 min nach dem letzten Take (`Core/NachtUpdate.cs`, getestet). Sonst wie bisher beim Schliessen oder mit „Neu starten".
