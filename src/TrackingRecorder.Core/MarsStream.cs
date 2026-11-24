@@ -103,7 +103,9 @@ public sealed class MarsClient : IDisposable
 
     void Request(byte b)
     {
-        try { _udp.Send([b], 1, _mars); Interlocked.Increment(ref Requests); } catch (SocketException) { }
+        try { _udp.Send([b], 1, _mars); Interlocked.Increment(ref Requests); }
+        catch (SocketException) { }
+        catch (ObjectDisposedException) { }   // Empfangsschleife kann nach Dispose noch einmal anfragen
     }
 
     void Loop()
@@ -133,8 +135,12 @@ public sealed class MarsClient : IDisposable
         }
     }
 
+    int _disposed;
+
+    /// <summary>Meldet sich bei Mars ab. Mehrfacher Aufruf ist erlaubt (z. B. Update-Neustart, danach Schliessen des Fensters).</summary>
     public void Dispose()
     {
+        if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
         _running = false;
         Request(MarsProtocol.Unsubscribe);
         _udp.Dispose();
