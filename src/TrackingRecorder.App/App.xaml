@@ -4,8 +4,10 @@
     <!-- Design System „Filmstudio Stage", Familie Set-Apps (Gestalt wie Stage Ingest).
          Farben liegen als Brushes in Theme.cs (Tag/Nacht nach Windows), hier nur DynamicResource. -->
     <Application.Resources>
-        <FontFamily x:Key="Sans">Segoe UI Variable Text, Segoe UI</FontFamily>
-        <FontFamily x:Key="Mono">Cascadia Mono, Consolas</FontFamily>
+        <!-- IBM Plex Sans 400/500/600 und Plex Mono 400/500, mitgeliefert (Schrift/, OFL) — Entscheid Marlon 26.11.2026,
+             DESIGN-GEMEINSAM / Design System Version 16. Text nie unter 12 px; Mono nie fetter als 500. -->
+        <FontFamily x:Key="Sans">pack://application:,,,/Schrift/#IBM Plex Sans</FontFamily>
+        <FontFamily x:Key="Mono">pack://application:,,,/Schrift/#IBM Plex Mono</FontFamily>
 
         <!-- Logo (assets/icon.svg): Graphit-Kachel, Bildrahmen, Kamerabahn in Bernstein -->
         <DrawingImage x:Key="Logo">

@@ -9,15 +9,20 @@ Diese Datei hält die Abweichungen und den Stand der Umsetzung in WPF (`Theme.cs
 
 ## Gestalt (wie Stage Ingest)
 
-- **Kopf 44 px** in `panel-2` mit Linie unten: Logo, Name 14 px fett, Version Mono 11 px `text-3`;
+- **Kopf 44 px** in `panel-2` mit Linie unten: Logo, Name 14 px fett, Version Mono 12 px `text-3`;
   rechts Bilder/s · Geräte, Störung als Gold-Zeichen mit Wort.
 - **Blöcke** (`panel`, 1 px `linie`, Radius 6) mit **Block-Kopf** (min. 40 px, `panel-2`, Titel 13 px fett, Zahl `text-3`):
   Lage, Geräte, Mars, Ereignisse. Zeilen mit 1 px `linie`, 46 px (Geräte) bzw. 32 px (Mars).
 - Lage in einem Satz (20 px fett) mit Zeichen, darunter eine Zeile Einzelheiten.
-- **Timecode als Tafel** (Cascadia Mono 44 px) — erlaubte Abweichung.
+- **Timecode als Tafel** (Plex Mono 44 px, 500) — erlaubte Abweichung.
 - Unten die Aufnahme (`panel`), darunter die Statusleiste (`panel-2`, 30 px).
-- Tag und Nacht nach Windows-Einstellung, live umschaltend. Schrift Segoe UI Variable Text / Segoe UI,
-  Mono (Cascadia Mono) nur für Zahlen, Serien, Pfade, Timecode; Tabellenziffern überall.
+- Tag und Nacht nach Windows-Einstellung, live umschaltend.
+- **Schrift IBM Plex Sans (400/500/600) und IBM Plex Mono (400/500), mitgeliefert** als TTF in `Schrift/` (OFL;
+  Entscheid Marlon 26.11.2026, Design System Version 16). Mono nur für Zahlen, Serien, Pfade, Timecode (Mono höchstens 500);
+  Tabellenziffern überall. **Text nie unter 12 px.** Darstellung: TextFormattingMode Display, UseLayoutRounding,
+  SnapsToDevicePixels; kein Effect und keine Transformation über Text (Schatten auf eigener Fläche), sonst kein ClearType.
+- Prüfbilder aus `--bild` (RenderTargetBitmap, 2×, Graustufen) zeigen Layout und Farben, aber nicht die Schärfe am
+  Bildschirm — dafür ein echtes Bildschirmfoto am Rechner.
 
 ## Farben
 

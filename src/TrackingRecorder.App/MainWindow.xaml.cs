@@ -308,7 +308,7 @@ public partial class MainWindow : Window
 
     void OnStageStart(StageTake t)
     {
-        if (KlappeBox.IsChecked != true) return;
+        if (KlappeBox.IsChecked != true || _nurAnsehen) return;   // Prüffenster nimmt nie auf
         if (_recorder is not null)
         {
             if (_ausloeser == "Klappe") StopTake();   // neuer Take ohne Cut dazwischen
@@ -579,6 +579,14 @@ public partial class MainWindow : Window
         _settings.Save();
     }
 
+    /// <summary>Prüffenster: nichts auf die Platte schreiben, keine Updates einspielen, nachts nicht neu starten.</summary>
+    internal void NurAnsehen()
+    {
+        _settings.ReadOnly = true;
+        _nurAnsehen = true;
+    }
+    bool _nurAnsehen;
+
     // Nur für Prüfbilder (App --bild … --rec)
     internal void StartForPreview()
     {
@@ -616,7 +624,7 @@ public partial class MainWindow : Window
         _client?.Dispose();   // meldet sich bei Mars ab
         _remote?.Dispose();
         _stage?.Dispose();
-        _updater.BeimBeendenEinspielen();
+        if (!_nurAnsehen) _updater.BeimBeendenEinspielen();
     }
 }
 

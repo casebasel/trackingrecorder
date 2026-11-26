@@ -21,13 +21,13 @@
                 <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
                     <Image Source="{StaticResource Logo}" Width="22" Height="22" VerticalAlignment="Center" Margin="0,0,10,0"/>
                     <TextBlock Text="TrackingRecorder" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                    <TextBlock x:Name="KopfVersion" Style="{StaticResource Zahl}" FontSize="11" Foreground="{DynamicResource Text3}" VerticalAlignment="Center" Margin="10,1,0,0"/>
+                    <TextBlock x:Name="KopfVersion" Style="{StaticResource Zahl}" FontSize="12" Foreground="{DynamicResource Text3}" VerticalAlignment="Center" Margin="10,1,0,0"/>
                 </StackPanel>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock x:Name="KopfRate" Text="–" Style="{StaticResource Zahl}" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="KopfRate" Text="–" Style="{StaticResource Zahl}" FontSize="13" FontWeight="Medium" VerticalAlignment="Center"/>
                     <TextBlock Text=" Bilder/s" Style="{StaticResource Zweit}" FontSize="13" VerticalAlignment="Center"/>
                     <Rectangle Width="1" Height="16" Fill="{DynamicResource Linie}" Margin="12,0"/>
-                    <TextBlock x:Name="KopfGeraete" Text="–" Style="{StaticResource Zahl}" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="KopfGeraete" Text="–" Style="{StaticResource Zahl}" FontSize="13" FontWeight="Medium" VerticalAlignment="Center"/>
                     <TextBlock Text=" Geräte" Style="{StaticResource Zweit}" FontSize="13" VerticalAlignment="Center"/>
                     <StackPanel x:Name="KopfStoerung" Orientation="Horizontal" Visibility="Collapsed" Margin="0,0,0,0">
                         <Rectangle Width="1" Height="16" Fill="{DynamicResource Linie}" Margin="12,0"/>
@@ -62,7 +62,7 @@
                     </StackPanel>
                     <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="24,0,0,0">
                         <TextBlock Text="Timecode Mars" Style="{StaticResource Leise}" HorizontalAlignment="Right"/>
-                        <TextBlock x:Name="TcText" Text="--:--:--:--" FontFamily="{StaticResource Mono}" FontSize="44" FontWeight="SemiBold"
+                        <TextBlock x:Name="TcText" Text="--:--:--:--" FontFamily="{StaticResource Mono}" FontSize="44" FontWeight="Medium"
                                    HorizontalAlignment="Right" Margin="0,-2,0,0"/>
                     </StackPanel>
                 </Grid>
@@ -247,16 +247,16 @@
         <Border Grid.Row="3" Background="{DynamicResource Panel2}" BorderBrush="{DynamicResource Linie}" BorderThickness="0,1,0,0" Padding="16,0">
             <DockPanel VerticalAlignment="Center">
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                    <TextBlock x:Name="UpdateText" Style="{StaticResource Leise}" FontSize="11" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBlock x:Name="UpdateText" Style="{StaticResource Leise}" FontSize="12" VerticalAlignment="Center" Margin="0,0,8,0"/>
                     <Button x:Name="UpdateButton" Content="Neu starten" Height="22" FontSize="12" Padding="8,0" Margin="0,0,10,0"
                             Visibility="Collapsed" Click="OnUpdateRestart" ToolTip="Spielt das Update ein und startet die App neu."/>
-                    <TextBlock x:Name="Version" Style="{StaticResource Zahl}" Foreground="{DynamicResource Text3}" FontSize="11" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="Version" Style="{StaticResource Zahl}" Foreground="{DynamicResource Text3}" FontSize="12" VerticalAlignment="Center"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Mars" Style="{StaticResource Leise}" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <TextBox x:Name="IpBox" Width="120" Height="22" FontFamily="{StaticResource Mono}" FontSize="11"/>
+                    <TextBox x:Name="IpBox" Width="120" Height="22" FontFamily="{StaticResource Mono}" FontSize="12"/>
                     <Button x:Name="ReconnectButton" Content="Neu verbinden" Height="22" FontSize="12" Padding="8,0" Margin="6,0,0,0" Click="OnReconnect"/>
-                    <TextBlock x:Name="PortText" Style="{StaticResource Leise}" FontSize="11" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                    <TextBlock x:Name="PortText" Style="{StaticResource Leise}" FontSize="12" VerticalAlignment="Center" Margin="12,0,0,0"/>
                 </StackPanel>
             </DockPanel>
         </Border>

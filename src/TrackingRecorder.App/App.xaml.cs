@@ -23,6 +23,21 @@ public partial class App : Application
             RenderBild(args[i + 1], args.Contains("--rec"));
             return;
         }
+        int j = Array.IndexOf(args, "--fenster");
+        if (j >= 0 && j + 1 < args.Length && int.TryParse(args[j + 1], out int sek))
+        {
+            // Echtes Fenster für ein Bildschirmfoto (ClearType am Monitor): eigener Port, schreibt keine Einstellungen,
+            // schliesst sich nach <sek> Sekunden.  TrackingRecorderApp.exe --fenster 15 [--dunkel|--hell]
+            Theme.Apply(args.Contains("--dunkel") ? true : args.Contains("--hell") ? false : null);
+            var w = new MainWindow(localPort: 55501);
+            w.NurAnsehen();
+            w.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            w.Show();
+            var zu = new DispatcherTimer { Interval = TimeSpan.FromSeconds(sek) };
+            zu.Tick += (_, _) => { zu.Stop(); w.Close(); Shutdown(); };
+            zu.Start();
+            return;
+        }
         // Nur eine Instanz: zwei Fenster würden sich bei Mars denselben Platz (Port) teilen.
         _single = new Mutex(true, @"Local\TrackingRecorderApp", out bool first);
         if (!first)
